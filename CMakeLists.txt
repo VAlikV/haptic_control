@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(GCC_COVERAGE_COMPILE_FLAGS "-W -fexceptions -O2 -DNDEBUG -Dlinux")
 
+find_library(Lapack_LIB liblapack NAMES liblapack lapack HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_library(HDU_LIB HDU NAMES libHDU.a -libHDU HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 find_library(HD_LIB HD NAMES libHD.so.3.4.0 -libHD HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 
@@ -19,6 +21,8 @@ add_executable(${PROJECT}
 )
 
 target_link_libraries(${PROJECT}
+    ${Lapack_LIB}
+    Eigen3::Eigen
     ${HDU_LIB}
     ${HD_LIB}
     rt

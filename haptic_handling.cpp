@@ -8,6 +8,8 @@
 #include <HDU/hduVector.h>
 #include <HDU/hduError.h>
 
+#include <Eigen/Dense>
+
 clock_t last_time;
 clock_t init_time;
 
@@ -70,7 +72,6 @@ int main(int argc, char* argv[])
 
     last_time = clock();
     init_time = clock();
-
 
     char temp;
     HDErrorInfo error;

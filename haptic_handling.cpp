@@ -13,7 +13,13 @@
 clock_t last_time;
 clock_t init_time;
 
+const double dh_theta[6] = {-M_PI/2, 0, M_PI/2, 0, 0, 0};                      // Параметры ДХ хаптика
+const double dh_alpha[6] = {-M_PI/2, 0, M_PI/2, -M_PI/2, M_PI/2, 0};     // Параметры ДХ хаптика
 
+Eigen::Matrix<double,3,3> R(double theta, double alpha);                 // Матрица поворота
+Eigen::Matrix<double,3,3> FK(hduVector3Dd& joint_angles, hduVector3Dd& wrist_angles);   // Прямая кинематика для хаптика (только матрица поворота)
+
+Eigen::Matrix<double,3,3> current_rot;
 
 HDCallbackCode HDCALLBACK TestCallback(void *data)
 {
@@ -39,10 +45,11 @@ HDCallbackCode HDCALLBACK TestCallback(void *data)
 
     if ((btn_1) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
     {
-        printf("x) %f,\ny) %f,\nz) %f\n",position[0], position[1], position[2]);
+        printf("\nx) %f,\ny) %f,\nz) %f\n",position[0], position[1], position[2]);
         printf("a_j) %f,\nb_j) %f,\nc_j) %f\n",joint_angles[0]*180/M_PI, joint_angles[1]*180/M_PI, joint_angles[2]*180/M_PI);
         printf("a_w) %f,\nb_w) %f,\nc_w) %f\n\n",wrist_angles[0]*180/M_PI, wrist_angles[1]*180/M_PI, wrist_angles[2]*180/M_PI);
-
+        current_rot = FK(joint_angles, wrist_angles);
+        std::cout << std::endl << "Текущая матрица:\n" << current_rot << std::endl;
         last_time = clock();
     }
 
@@ -121,4 +128,28 @@ int main(int argc, char* argv[])
     printf("\nAll closed\n");
 
     return 0;
+}
+
+Eigen::Matrix<double,3,3> R(double theta, double alpha)         // Rotation matrix
+{
+    Eigen::Matrix<double,3,3> R;
+    R << cos(theta), -sin(theta)*cos(alpha),  sin(theta)*sin(alpha),
+         sin(theta),  cos(theta)*cos(alpha), -cos(theta)*sin(alpha),
+                  0,             sin(alpha),             cos(alpha);
+    return R;
+}
+
+Eigen::Matrix<double,3,3> FK(hduVector3Dd& joint_angles, hduVector3Dd& wrist_angles)      // Forvard kinematics
+{
+    Eigen::Matrix<double,3,3> rotation = Eigen::Matrix<double,3,3>::Identity(3,3);
+
+    for (int8_t i = 0; i < 3; ++i)
+    {
+        rotation = rotation * R(dh_theta[i]+joint_angles[i], dh_alpha[i]);
+    }
+    for (int8_t i = 3; i < 6; ++i)
+    {
+        rotation = rotation * R(dh_theta[i]+wrist_angles[i-3], dh_alpha[i]);
+    }
+    return rotation;
 }

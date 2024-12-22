@@ -25,12 +25,13 @@ def FK(d, thetta, alpha, a):
 
 q = np.array([-4.429273, -13.468780, 81.478275, 7.668355, -7.244162, -9.713130])
 q = q * np.pi/180
-thetta = np.array([0, 0, np.pi/2, 0, 0 + np.pi/2, 0],dtype=float)
-alpha = np.array([-np.pi/2, 0, np.pi/2, -np.pi/2, np.pi/2, 0],dtype=float)
-d = np.array([2, 0, 0, 2, 0, 1],dtype=float)
+thetta = np.array([-0+90, 15, -21, -0, 45-90, -5],dtype=float)
+thetta = thetta * np.pi/180
+alpha = np.array([np.pi/2, 0, np.pi/2, -np.pi/2, np.pi/2, 0],dtype=float)
+d = np.array([2, 0, 0, 1.5, 0, 1],dtype=float)
 a = np.array([0, 2, 0, 0, 0, 0],dtype=float)
 
-rt, data, _ = FK(d,q,alpha,a)
+rt, data, _ = FK(d,thetta,alpha,a)
 # print(data)
 
 # data = np.insert(data,0,[0,0,0],axis=1)

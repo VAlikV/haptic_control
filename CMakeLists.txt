@@ -13,11 +13,15 @@ set(GCC_COVERAGE_COMPILE_FLAGS "-W -fexceptions -O2 -DNDEBUG -Dlinux")
 # find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_library(HDU_LIB HDU NAMES libHDU.a -libHDU HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 find_library(HD_LIB HD NAMES libHD.so.3.4.0 -libHD HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
+# find_library(GLUT_LIB NAMES )
+# lglut -lGL -lGLU
 
-# set(USABLE_FUNCTIONS ${CMAKE_CURRENT_SOURCE_DIR}/usable_functions)
+set(HAPTIC ${CMAKE_CURRENT_SOURCE_DIR}/haptic_class)
 
 add_executable(${PROJECT}
-    haptic_handling.cpp
+    main.cpp
+    ${HAPTIC}/main_haptic.cpp   ${HAPTIC}/main_haptic.hpp
+    # ${HAPTIC}/helper.cpp        ${HAPTIC}/helper.hpp
 )
 
 add_subdirectory(lib/my_lib_for_ik)

@@ -1,6 +1,7 @@
 {
     "ros.distro": "noetic",
     "files.associations": {
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "dense": "cpp"
     }
 }

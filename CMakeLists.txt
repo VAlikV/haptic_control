@@ -17,7 +17,9 @@ find_library(HD_LIB HD NAMES libHD.so.3.4.0 -libHD HINTS ${CMAKE_CURRENT_SOURCE_
 # set(USABLE_FUNCTIONS ${CMAKE_CURRENT_SOURCE_DIR}/usable_functions)
 
 add_executable(${PROJECT}
-    haptic_handling.cpp
+    main.cpp
+    main_haptic/haptic_handling.cpp     main_haptic/haptic_handling.hpp
+    helper/helper.cpp                   helper/helper.hpp
 )
 
 add_subdirectory(lib/my_lib_for_ik)

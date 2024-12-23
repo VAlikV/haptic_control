@@ -22,6 +22,9 @@ void graphics::initGlut(int argc, char* argv[])
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
 void graphics::initGraphics(const hduVector3Dd &LLB, const hduVector3Dd &TRF)
 {
     // Setup perspective projection.
@@ -56,6 +59,9 @@ void graphics::initGraphics(const hduVector3Dd &LLB, const hduVector3Dd &TRF)
     glDisable(GL_DEPTH_TEST);
 }
 
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
 void graphics::setupGraphicsState()
 {
     glShadeModel(GL_SMOOTH);
@@ -84,6 +90,9 @@ void graphics::setupGraphicsState()
     glEnable(GL_LIGHT1);
 }
 
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
 void graphics::drawAxes(double axisLength)
 {
     glDisable(GL_LIGHTING);
@@ -103,8 +112,10 @@ void graphics::drawAxes(double axisLength)
         glVertex3f(0, 0, 0);
     } 
     glEnd();
-    
 }
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 void graphics::drawSphere(GLUquadricObj* pQuadObj, 
                 const hduVector3Dd &position,
@@ -119,6 +130,68 @@ void graphics::drawSphere(GLUquadricObj* pQuadObj,
     gluSphere(pQuadObj, sphereRadius, 20, 20); 
     glPopMatrix();
 }
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+void graphics::drawForceVector(GLUquadricObj* pQuadObj,
+                     const hduVector3Dd &position,
+                     const hduVector3Dd &forceVector,
+                     double arrowThickness)
+{
+    glDisable(GL_LIGHTING);
+    
+    glPushMatrix();
+
+    glTranslatef(position[0], position[1], position[2]);
+
+    // Change the force magnitude/direction by rotating the force vector.
+    // Calculate the rotation angle.
+    hduVector3Dd unitForceVectorAxis = normalize(forceVector);
+    hduVector3Dd zAxis( 0.0, 0.0, 1.0 );
+    hduVector3Dd toolRotAxis = zAxis.crossProduct(unitForceVectorAxis);
+        
+    double toolRotAngle = acos(unitForceVectorAxis[2]);
+    hduMatrix rotMatrix = hduMatrix::createRotation(toolRotAxis, 
+                                                    toolRotAngle);
+
+    double rotVals[4][4];
+    rotMatrix.get(rotVals);
+    glMultMatrixd((double*) rotVals);
+
+    // The force arrow: composed of a cylinder and a cone.
+    glColor3f( 0.2, 0.7, 0.2 );
+    
+    double strength = forceVector.magnitude();
+    
+    // Draw arrow shaft.
+    gluCylinder(pQuadObj,arrowThickness, arrowThickness, strength, 16, 2); 
+    glTranslatef(0, 0, strength);
+    glColor3f(0.2, 0.8, 0.3);
+    
+    // Draw arrow head.
+    gluCylinder(pQuadObj, arrowThickness*2, 0.0, strength*.15, 16, 2); 
+    
+    glPopMatrix();
+}
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+HDCallbackCode HDCALLBACK graphics::DeviceStateCallback(void *pUserData)
+{
+    DeviceDisplayState *pDisplayState = 
+        static_cast<DeviceDisplayState *>(pUserData);
+
+    hdGetDoublev(HD_CURRENT_POSITION, pDisplayState->position);
+    hdGetDoublev(HD_CURRENT_FORCE, pDisplayState->force);
+
+    // execute this only once.
+    return HD_CALLBACK_DONE;
+}
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 void graphics::displayFunction(void)
 {
@@ -138,23 +211,37 @@ void graphics::displayFunction(void)
     drawSphere(pQuadObj, fixedSpherePosition, fixedSphereColor, sphereRadius);
 
     // Get the current position of end effector.
-    DeviceDisplayState state;
-    gSchedulerCallback = hdScheduleAsynchronous(DeviceStateCallback, &state,
-                          HD_MIN_SCHEDULER_PRIORITY);
+    // DeviceDisplayState state;
+    // hdScheduleSynchronous(DeviceStateCallback, &state,
+    //                       HD_MIN_SCHEDULER_PRIORITY);
 
     // Draw a sphere to represent the haptic cursor and the dynamic 
     // charge.
-    static const float dynamicSphereColor[4] = { .8, .2, .2, .8 };
+
+    hduVector3Dd position(params.current_pos_.x()*100, params.current_pos_.y()*100, params.current_pos_.z()*100);
+
+    static const float dynamicSphereColor[4] = { .8, .8, .2, .8 };
     drawSphere(pQuadObj, 
-               state.position,
+               position,
                dynamicSphereColor,
                sphereRadius);    
 
-    gluDeleteQuadric(pQuadObj);
+    // Create the force vector.
+    // hduVector3Dd forceVector = 400.0 * forceField(state.position);
+    
+    // drawForceVector(pQuadObj,
+    //                 state.position,
+    //                 forceVector,
+    //                 sphereRadius*.1);
+
+    // gluDeleteQuadric(pQuadObj);
   
     glPopMatrix();
     glutSwapBuffers();                      
 }
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 void graphics::handleIdle(void)
 {
@@ -164,37 +251,162 @@ void graphics::handleIdle(void)
     {
         printf("The main scheduler callback has exited\n");
         printf("Press any key to quit.\n");
-        return;
+        getchar();
+        exit(-1);
     }
 }
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 void graphics::handleMenu(int ID)
 {
-
-    if (ID == 0)
+    switch(ID) 
     {
-        exit(0);
+        case 0:
+            exit(0);
+            break;
     }
-    // switch(ID) 
-    // {
-    //     case 0:
-    //         exit(0);
-    //         break;
-    // }
 }
 
-HDCallbackCode HDCALLBACK graphics::DeviceStateCallback(void *pUserData)
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+hduVector3Dd graphics::forceField(hduVector3Dd pos)
 {
-    DeviceDisplayState *pDisplayState = 
-        static_cast<DeviceDisplayState *>(pUserData);
+    // double dist = pos.magnitude();
+    
+    hduVector3Dd forceVec(0,0,0);
+    
+    // if two charges overlap...
+    // if(dist < sphereRadius*2.0) 
+    // {
+    //     // Attract the charge to the center of the sphere.
+    //     forceVec =  -0.1*pos;
+    // }
+    // else
+    // {
+    //     hduVector3Dd unitPos = normalize(pos);
+    //     forceVec = -1200.0*unitPos/(dist*dist);
+    // }
+    // forceVec *= charge;
+    return forceVec;
+}
 
-    // double p;
-    // double f;
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
-    hdGetDoublev(HD_CURRENT_POSITION,pDisplayState->position);
-    hdGetDoublev(HD_CURRENT_FORCE,pDisplayState->force);
+HDCallbackCode HDCALLBACK graphics::Callback(void *data)
+{
+    HHD hHD = hdGetCurrentDevice();
 
-    // execute this only once.
-    return HD_CALLBACK_DONE;
+    hdBeginFrame(hHD);
+
+    hdGetDoublev(HD_CURRENT_POSITION, params.position_);
+    hdGetDoublev(HD_CURRENT_JOINT_ANGLES, params.joint_angles_);
+    hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, params.wrist_angles_);
+
+    hdGetIntegerv(HD_CURRENT_BUTTONS, &(nButtons));
+    
+    btn_1 = (nButtons & HD_DEVICE_BUTTON_1) ? HD_TRUE : HD_FALSE;
+    btn_2 = (nButtons & HD_DEVICE_BUTTON_2) ? HD_TRUE : HD_FALSE;
+
+    if ((btn_1) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
+    {
+        // printf("\nx) %f,\ny) %f,\nz) %f\n",this_ptr->position_[0], this_ptr->position_[1], this_ptr->position_[2]);
+        // printf("a_j) %f,\nb_j) %f,\nc_j) %f\n",this_ptr->joint_angles_[0]*180/M_PI, this_ptr->joint_angles_[1]*180/M_PI, this_ptr->joint_angles_[2]*180/M_PI);
+        // printf("a_w) %f,\nb_w) %f,\nc_w) %f\n\n",this_ptr->wrist_angles_[0]*180/M_PI, this_ptr->wrist_angles_[1]*180/M_PI, this_ptr->wrist_angles_[2]*180/M_PI);
+        
+        params.delta_position_ = params.position_ - params.previous_position_;
+
+        params.temp_ = params.current_pos_;
+
+        params.current_pos_.x() = params.current_pos_.x() + params.delta_position_[0]/100;
+        params.current_pos_.y() = params.current_pos_.y() + params.delta_position_[1]/100;
+        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[2]/100;
+
+        if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
+        {
+            params.current_pos_ = params.temp_;
+            std::cout << std::endl << "False" << std::endl;
+        }
+
+        std::cout << "Текущая позиция:\n" << params.current_pos_.x() << "\t" << params.current_pos_.y() << "\t" << params.current_pos_.z() << std::endl;
+
+        params.previous_position_ = params.position_;
+
+        // int state = params.kinematic_->IK(this_ptr->current_rot_, this_ptr->current_pos_);
+
+        last_time = clock();
+    }
+    else if (!(btn_1))
+    {
+        params.previous_position_ = params.position_;
+    }
+
+    if ((btn_2) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
+    {
+
+        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
+
+        last_time = clock();
+    }
+
+    // hduVector3Dd pos;
+    // hdGetDoublev(HD_CURRENT_POSITION,pos);
+    // hduVector3Dd forceVec;
+    // forceVec = forceField(pos);
+    // hdSetDoublev(HD_CURRENT_FORCE, forceVec);
+        
+    hdEndFrame(hHD);
+
+    HDErrorInfo error;
+    if (HD_DEVICE_ERROR(error = hdGetError()))
+    {
+        hduPrintError(stderr, &error, "Error during scheduler callback");
+        if (hduIsSchedulerError(&error))
+        {
+            return HD_CALLBACK_DONE;
+        }
+    }
+
+    return HD_CALLBACK_CONTINUE;
+}
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+void graphics::HapticControl()
+{
+    gSchedulerCallback = hdScheduleAsynchronous(
+        Callback, 0, HD_DEFAULT_SCHEDULER_PRIORITY);
+
+    HDErrorInfo error;
+    if (HD_DEVICE_ERROR(error = hdGetError()))
+    {
+        hduPrintError(stderr, &error, "Failed to initialize haptic device");
+        fprintf(stderr, "\nPress any key to quit.\n");
+        getchar();
+        exit(-1);
+    }
+
+
+    glutMainLoop(); // Enter GLUT main loop.
+}
+
+// -----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
+
+void graphics::exitHandler()
+{
+    hdStopScheduler();
+    hdUnschedule(gSchedulerCallback);
+
+    if (ghHD != HD_INVALID_HANDLE)
+    {
+        hdDisableDevice(ghHD);
+        ghHD = HD_INVALID_HANDLE;
+    }
 }
 

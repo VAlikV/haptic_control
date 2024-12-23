@@ -21,7 +21,7 @@ find_library(GLU_LIB GLU NAMES libGLU.so.1.3.1 -libGL HINTS ${CMAKE_CURRENT_SOUR
 
 add_executable(${PROJECT}
     main.cpp
-    main_haptic/haptic_handling.cpp     main_haptic/haptic_handling.hpp
+    # main_haptic/haptic_handling.cpp     main_haptic/haptic_handling.hpp
     main_haptic/haptic_graphics.cpp     main_haptic/haptic_graphics.hpp
     helper/helper.cpp                   helper/helper.hpp
 )

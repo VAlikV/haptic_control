@@ -1,4 +1,5 @@
 #include "main_haptic/haptic_handling.hpp"
+#include "main_haptic/haptic_graphics.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -34,6 +35,21 @@ int main(int argc, char* argv[])
     // Application loop - schedule our call to the main callback.
     HDSchedulerHandle hSphereCallback = hdScheduleAsynchronous(
         haptic::Callback, 0, HD_DEFAULT_SCHEDULER_PRIORITY);
+
+    graphics::initGlut(argc, argv);
+
+    // Get the workspace dimensions.
+    HDdouble maxWorkspace[6];
+    hdGetDoublev(HD_MAX_WORKSPACE_DIMENSIONS, maxWorkspace);
+
+    // Low/left/back point of device workspace.
+    hduVector3Dd LLB(maxWorkspace[0], maxWorkspace[1], maxWorkspace[2]);
+    // Top/right/front point of device workspace.
+    hduVector3Dd TRF(maxWorkspace[3], maxWorkspace[4], maxWorkspace[5]);
+    
+    graphics::initGraphics(LLB, TRF);
+
+    glutMainLoop();
 
     while (1)
     {

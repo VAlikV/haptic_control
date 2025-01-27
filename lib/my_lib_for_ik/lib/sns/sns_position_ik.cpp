@@ -30,14 +30,14 @@ SNSPositionIK::SNSPositionIK(KDL::Chain chain, std::shared_ptr<SNSVelocityIK> ve
     m_ikVelSolver(velocity_ik),
     m_positionFK(m_chain),
     m_jacobianSolver(m_chain),
-    m_linearMaxStepSize(0.2),
-    m_angularMaxStepSize(0.2),
-    m_maxIterations(150),
+    m_linearMaxStepSize(0.02),
+    m_angularMaxStepSize(0.02),
+    m_maxIterations(50),
     m_eps(eps),
     m_dt(0.2),
     m_useBarrierFunction(true),
-    m_barrierInitAlpha(0.1),
-    m_barrierDecay(0.8)
+    m_barrierInitAlpha(0.01),
+    m_barrierDecay(0.9)
 {
   // int st = m_chain.getNrOfJoints();
   // int st1 = chain.getNrOfJoints();

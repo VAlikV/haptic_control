@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-set(PROJECT Control)
+set(PROJECT My_Ctrl)
 
 project(${PROJECT} VERSION 1.0.0 LANGUAGES CXX)
 
@@ -9,15 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
-find_library(OpenBLAS_LIB libopenblas NAMES libopenblas openblas HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
-find_library(Lapack_LIB liblapack NAMES liblapack lapack HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
-find_library(Armadillo_LIB libarmadillo NAMES libarmadillo armadillo HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
-find_library(FORTRUN libgfortran.so.5 NAMES libgfortran5 gfortran gfortran5  gfortran REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_library(FORTRUN libgfortran.so.5 NAMES libgfortran5 gfortran gfortran5 gfortran REQUIRED)
-find_library(KDL liborocos-kdl.so.1.5.1 NAMES liborocos-kdl liborocos kdl HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
+find_library(KDL liborocos-kdl.so.1.5.1 NAMES liborocos-kdl liborocos kdl REQUIRED)
+find_package(pinocchio REQUIRED)
+find_package(drake CONFIG REQUIRED)
 
-message(${FORTRUN})
+
+# message(${FORTRUN})
 
 set(SNS ${CMAKE_CURRENT_SOURCE_DIR}/lib/sns)
 set(SNS_LIB
@@ -40,35 +38,31 @@ set(MAIN_KINEMATIC ${CMAKE_CURRENT_SOURCE_DIR}/facade)
 set(KINEMATIC_CLASS ${CMAKE_CURRENT_SOURCE_DIR}/kinematic_class)
 set(KDL_KINEMATIC_CLASS ${KINEMATIC_CLASS}/KDL)
 set(SNS_KINEMATIC_CLASS ${KINEMATIC_CLASS}/SNS)
+set(PIN_KINEMATIC_CLASS ${KINEMATIC_CLASS}/Pinocchio)
+set(DRAKE_KINEMATIC_CLASS ${KINEMATIC_CLASS}/Drake)
 
 set(USABLE_FUNCTIONS ${CMAKE_CURRENT_SOURCE_DIR}/usable_functions)
 
 set(FILES
     ${SNS_LIB}
 
-    # main.cpp
+    ${MAIN_KINEMATIC}/main_kinematic.cpp                ${MAIN_KINEMATIC}/main_kinematic.hpp
 
-    ${MAIN_KINEMATIC}/main_kinematic.cpp        ${MAIN_KINEMATIC}/main_kinematic.hpp
+    ${KINEMATIC_CLASS}/base_kinematic.hpp               ${KINEMATIC_CLASS}/base_kinematic.cpp
+    ${KDL_KINEMATIC_CLASS}/KDL_kinematic.hpp            ${KDL_KINEMATIC_CLASS}/KDL_kinematic.cpp
+    ${SNS_KINEMATIC_CLASS}/SNS_kinematic.hpp            ${SNS_KINEMATIC_CLASS}/SNS_kinematic.cpp
+    ${PIN_KINEMATIC_CLASS}/Pinocchio_kinematic.hpp      ${PIN_KINEMATIC_CLASS}/Pinocchio_kinematic.cpp
+    ${DRAKE_KINEMATIC_CLASS}/Drake_kinematic.hpp        ${DRAKE_KINEMATIC_CLASS}/Drake_kinematic.cpp
 
-    ${KINEMATIC_CLASS}/base_kinematic.hpp       ${KINEMATIC_CLASS}/base_kinematic.cpp
-    ${KDL_KINEMATIC_CLASS}/KDL_kinematic.hpp    ${KDL_KINEMATIC_CLASS}/KDL_kinematic.cpp
-    ${SNS_KINEMATIC_CLASS}/SNS_kinematic.hpp    ${SNS_KINEMATIC_CLASS}/SNS_kinematic.cpp
-    
     # ${USABLE_FUNCTIONS}/usable_functions.hpp    ${USABLE_FUNCTIONS}/usable_functions.cpp
 )
 
-add_library(My_Ctrl STATIC ${FILES})
+add_library(${PROJECT} STATIC ${FILES})
 
-target_link_libraries(My_Ctrl PUBLIC
-    ${OpenBLAS_LIB}
-    ${Lapack_LIB}
-    ${Armadillo_LIB}
-    ${FORTRUN}
+target_link_libraries(${PROJECT} 
     Eigen3::Eigen
     ${KDL}
     Threads::Threads
+    pinocchio::pinocchio
+    drake::drake
 )
-
-target_include_directories(My_Ctrl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# add_subdirectory(for_tests)

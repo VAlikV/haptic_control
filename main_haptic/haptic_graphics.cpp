@@ -218,7 +218,9 @@ void graphics::displayFunction(void)
     // Draw a sphere to represent the haptic cursor and the dynamic 
     // charge.
 
-    hduVector3Dd position(params.current_pos_.x()*100, params.current_pos_.y()*100, params.current_pos_.z()*100);
+    hduVector3Dd position((params.current_pos_.x() - params.initial_pos_.x())*100,
+                            (params.current_pos_.y() - params.initial_pos_.y())*100,
+                            (params.current_pos_.z() - params.initial_pos_.z())*100);
 
     static const float dynamicSphereColor[4] = { .8, .8, .2, .8 };
     drawSphere(pQuadObj, 
@@ -311,12 +313,21 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     btn_1 = (nButtons & HD_DEVICE_BUTTON_1) ? HD_TRUE : HD_FALSE;
     btn_2 = (nButtons & HD_DEVICE_BUTTON_2) ? HD_TRUE : HD_FALSE;
 
+    if (first)
+    {
+        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+
+        params.initial_pos_ << 0.7, 0.0, 0.6;
+        params.current_pos_ << 0.7, 0.0, 0.6;
+
+        first = false;
+    }
+
     if ((btn_1) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
     {
-        // printf("\nx) %f,\ny) %f,\nz) %f\n",this_ptr->position_[0], this_ptr->position_[1], this_ptr->position_[2]);
-        // printf("a_j) %f,\nb_j) %f,\nc_j) %f\n",this_ptr->joint_angles_[0]*180/M_PI, this_ptr->joint_angles_[1]*180/M_PI, this_ptr->joint_angles_[2]*180/M_PI);
-        // printf("a_w) %f,\nb_w) %f,\nc_w) %f\n\n",this_ptr->wrist_angles_[0]*180/M_PI, this_ptr->wrist_angles_[1]*180/M_PI, this_ptr->wrist_angles_[2]*180/M_PI);
-        
+
+        t = clock();
+
         params.delta_position_ = params.position_ - params.previous_position_;
 
         params.temp_ = params.current_pos_;
@@ -335,9 +346,17 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         params.previous_position_ = params.position_;
 
-        // int state = params.kinematic_->IK(this_ptr->current_rot_, this_ptr->current_pos_);
+        t = clock();
+        
+        state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
+        params.thetta_ = params.kinematic_.getQDeg();
+
+        std::cout << "Статус: " << state << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl;
 
         last_time = clock();
+
+        std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
     }
     else if (!(btn_1))
     {
@@ -347,10 +366,22 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     if ((btn_2) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
     {
 
+        t = clock();
+
         params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
         std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
 
+        t = clock();
+
+        state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
+        params.thetta_ = params.kinematic_.getQDeg();
+
+        std::cout << "Статус: " << state << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl << std::endl;
+
         last_time = clock();
+
+        std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
     }
 
     // hduVector3Dd pos;

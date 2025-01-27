@@ -15,6 +15,8 @@
 
 #include "../helper/helper.hpp"
 
+#include "../lib/my_lib_for_ik/facade/main_kinematic.hpp"
+
 namespace graphics
 {
 
@@ -41,6 +43,12 @@ namespace graphics
         Eigen::Vector3d current_pos_;
 
         const double radius_ = 0.5;
+
+        Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
+        // DrakeKinematic* Drake_solver = new DrakeKinematic("../robots/iiwa.urdf");
+        // static Kinematic kinematic_ = Kinematic(Drake_solver);
+
+        Eigen::Array<double, 7,1> thetta_;
     };
 
     static HHD ghHD = HD_INVALID_HANDLE;
@@ -48,12 +56,17 @@ namespace graphics
 
     static double sphereRadius = 5.0;
 
+    static bool first = true;
+    static int state;
+
     static int nButtons = 0;
     static bool btn_1;
     static bool btn_2;
 
     static clock_t last_time;
     static clock_t init_time;
+
+    static clock_t t;
     
     static Position_Params params;
 

@@ -24,6 +24,8 @@ add_executable(${PROJECT}
     # main_haptic/haptic_handling.cpp     main_haptic/haptic_handling.hpp
     main_haptic/haptic_graphics.cpp     main_haptic/haptic_graphics.hpp
     helper/helper.cpp                   helper/helper.hpp
+    udp/udp_server.cpp                  udp/udp_server.hpp
+    lockfree/lockfree.hpp
 )
 
 add_subdirectory(lib/my_lib_for_ik)

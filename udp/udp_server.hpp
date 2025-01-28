@@ -15,6 +15,13 @@
 #include <functional>
 #include <atomic>
 
+#include <nlohmann/json.hpp>
+#include <Eigen/Dense>
+
+#include "../lockfree/lockfree.hpp"
+
+using json = nlohmann::json;
+
 namespace server
 {
     class UDPServer
@@ -54,6 +61,11 @@ namespace server
         // ------------------------------------------------- type transmitted data
 		// -----------------------------------------------------------------------
 
+        Eigen::Array<double, 7,1> thetta_msg_;
+
+        ring_buffer<Eigen::Array<double, 7,1>> transmit_buffer_;
+
+		// -----------------------------------------------------------------------
         
         void closeSocket();
         void run_receive();
@@ -67,8 +79,10 @@ namespace server
         void stop();
 
         bool getMsg();
-        bool setMsg();
+        bool setMsg(Eigen::Array<double, 7,1> thetta);
     };
+
+    json eigenArrayToJson(const Eigen::ArrayXd& array);
 }
 
 #endif

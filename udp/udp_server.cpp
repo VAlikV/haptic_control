@@ -6,7 +6,8 @@ UDPServer::UDPServer(std::string server_ip, unsigned long server_port, std::stri
 server_ip_(server_ip),
 server_port_(server_port),
 client_ip_(client_ip),
-client_port_(client_port)
+client_port_(client_port),
+transmit_buffer_(1024)
 {
     
 }
@@ -101,13 +102,27 @@ void UDPServer::run_receive()
 
 void UDPServer::run_transmit()
 {
-    const char* ch = "A";
+	const char* ch;
     while (server_started_)
 	{
 		if (msg_ready_)
 		{
-			sendto(sockfd_, ch, strlen(ch), MSG_CONFIRM, (const struct sockaddr *) &cliaddr_, sizeof(cliaddr_)); 
-			msg_ready_ = false;
+			// -----------------------------------------------------------------------
+			// ------------------------------------------- processing transmitted data
+			// -----------------------------------------------------------------------
+
+			if (transmit_buffer_.pop(thetta_msg_))
+			{
+				// std::cout << "AAAAAAAAAAAAAA" << thetta_msg_ << std::endl;
+				// ch = server::eigenArrayToJson(thetta_msg_).dump().c_str();
+				// std::cout << "AAAAAAAAAAAAAA" << server::eigenArrayToJson(thetta_msg_).dump().c_str() << std::endl;
+
+
+				// REWRITE
+				
+				sendto(sockfd_, server::eigenArrayToJson(thetta_msg_).dump().c_str(), strlen(server::eigenArrayToJson(thetta_msg_).dump().c_str()), MSG_CONFIRM, (const struct sockaddr *) &cliaddr_, sizeof(cliaddr_)); 
+				msg_ready_ = false;
+			}
 		}
 	}
 }
@@ -137,9 +152,19 @@ bool UDPServer::getMsg()
 	return true;
 }
 
-bool UDPServer::setMsg()
+bool UDPServer::setMsg(Eigen::Array<double, 7,1> thetta)
 {
-	msg_ready_ = true;
+
+	msg_ready_ = transmit_buffer_.push(thetta);
 
 	return true;
+}
+
+json server::eigenArrayToJson(const Eigen::ArrayXd& array) {
+	json j = json::array(); // Создаем JSON массив
+	for (int i = 0; i < array.size(); ++i) 
+	{
+		j.push_back(array[i]); // Добавляем элементы в массив
+	}
+	return j;
 }

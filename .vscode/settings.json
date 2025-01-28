@@ -74,6 +74,23 @@
         "any": "cpp",
         "codecvt": "cpp",
         "numbers": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "core": "cpp",
+        "autodiff": "cpp",
+        "specialfunctions": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "barrier": "cpp",
+        "charconv": "cpp",
+        "coroutine": "cpp",
+        "cuchar": "cpp",
+        "regex": "cpp",
+        "source_location": "cpp",
+        "future": "cpp",
+        "latch": "cpp",
+        "scoped_allocator": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "syncstream": "cpp"
     }
 }

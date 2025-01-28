@@ -17,6 +17,7 @@ find_library(GLUT_LIB GLUT NAMES libglut.so.3.9.0 -libglut HINTS ${CMAKE_CURRENT
 find_library(GL_LIB GL NAMES libGL.so.1.7.0 -libGL HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 find_library(GLU_LIB GLU NAMES libGLU.so.1.3.1 -libGL HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 
+find_package(nlohmann_json 3.11.3 REQUIRED)
 # set(USABLE_FUNCTIONS ${CMAKE_CURRENT_SOURCE_DIR}/usable_functions)
 
 add_executable(${PROJECT}
@@ -42,6 +43,7 @@ target_link_libraries(${PROJECT}
     stdc++
     m
     ncurses
+    nlohmann_json::nlohmann_json
     My_Ctrl
 )
 

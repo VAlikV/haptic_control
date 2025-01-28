@@ -182,71 +182,71 @@ private:
 	size_t digest_ = 0;
 };
 
-void test()
-{
-	constexpr size_t k_count = 10'000'000;
-	constexpr size_t k_size = 1024;
+// void test()
+// {
+// 	constexpr size_t k_count = 10'000'000;
+// 	constexpr size_t k_size = 1024;
 
-	ring_buffer<int> buffer(k_size);
+// 	ring_buffer<int> buffer(k_size);
 
-	size_t producer_hash = 0;
-	std::chrono::milliseconds producer_time;
+// 	size_t producer_hash = 0;
+// 	std::chrono::milliseconds producer_time;
 
-	size_t consumer_hash = 0;
-	std::chrono::milliseconds consumer_time;
+// 	size_t consumer_hash = 0;
+// 	std::chrono::milliseconds consumer_time;
 
-	std::thread producer([&]()
-	{
-		hash_calculator hash;
-		stopwatch watch;
+// 	std::thread producer([&]()
+// 	{
+// 		hash_calculator hash;
+// 		stopwatch watch;
 
-		for (size_t i = 0; i < k_count; ++i) 
-		{
-			hash.set(i);
+// 		for (size_t i = 0; i < k_count; ++i) 
+// 		{
+// 			hash.set(i);
 
-			while (!buffer.push(i)) 
-			{
-				std::this_thread::yield();
-			}
-		}
+// 			while (!buffer.push(i)) 
+// 			{
+// 				std::this_thread::yield();
+// 			}
+// 		}
 
-		producer_time = watch.elapsed_duration<std::chrono::milliseconds>();
-		producer_hash = hash.value(); 
-	});
+// 		producer_time = watch.elapsed_duration<std::chrono::milliseconds>();
+// 		producer_hash = hash.value(); 
+// 	});
 
-	std::thread consumer([&]()
-	{
-		hash_calculator hash;
-		stopwatch watch;
+// 	std::thread consumer([&]()
+// 	{
+// 		hash_calculator hash;
+// 		stopwatch watch;
 
-		for (size_t i = 0; i < k_count; ++i) 
-		{
-			int value;
+// 		for (size_t i = 0; i < k_count; ++i) 
+// 		{
+// 			int value;
 
-			while (!buffer.pop(value)) 
-			{
-				std::this_thread::yield();
-			}
+// 			while (!buffer.pop(value)) 
+// 			{
+// 				std::this_thread::yield();
+// 			}
 
-			hash.set(value);
-		}
+// 			hash.set(value);
+// 		}
 
-		consumer_time = watch.elapsed_duration<std::chrono::milliseconds>();
-		consumer_hash = hash.value(); 
-	});
+// 		consumer_time = watch.elapsed_duration<std::chrono::milliseconds>();
+// 		consumer_hash = hash.value(); 
+// 	});
 
-	producer.join();
-	consumer.join();
+// 	producer.join();
+// 	consumer.join();
 
-	if (producer_hash != consumer_hash)
-	{
-		throw std::runtime_error(M_SOURCE ": workers hash must be equal");
-	}
+// 	if (producer_hash != consumer_hash)
+// 	{
+// 		throw std::runtime_error(M_SOURCE ": workers hash must be equal");
+// 	}
 
-	std::cout << "producer_time: " << producer_time.count() << "ms; "
-			  << "consumer_time: " << consumer_time.count() << "ms"
-			  << std::endl;
-}
+// 	std::cout << "producer_time: " << producer_time.count() << "ms; "
+// 			  << "consumer_time: " << consumer_time.count() << "ms"
+// 			  << std::endl;
+// }
 
 // g++ -std=c++17 -O2 -pthread main.cpp
 // g++ -std=c++17 -O2 -pthread -fsanitize=thread main.cpp

@@ -14,8 +14,8 @@
 #include <Eigen/Dense>
 
 #include "../helper/helper.hpp"
-
 #include "../lib/my_lib_for_ik/facade/main_kinematic.hpp"
+#include "../udp/udp_server.hpp"
 
 namespace graphics
 {
@@ -44,7 +44,8 @@ namespace graphics
 
         const double radius_ = 0.5;
 
-        Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
+        // Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
+        Kinematic kinematic_ = Kinematic(new KDLKinematic());
         // DrakeKinematic* Drake_solver = new DrakeKinematic("../robots/iiwa.urdf");
         // static Kinematic kinematic_ = Kinematic(Drake_solver);
 
@@ -53,6 +54,8 @@ namespace graphics
 
     static HHD ghHD = HD_INVALID_HANDLE;
     static HDSchedulerHandle gSchedulerCallback = HD_INVALID_HANDLE;
+
+    // ================================================================================
 
     static double sphereRadius = 5.0;
 
@@ -69,6 +72,10 @@ namespace graphics
     static clock_t t;
     
     static Position_Params params;
+
+    static server::UDPServer server("127.0.0.1", 8080, "127.0.0.1", 8081);
+
+    // ================================================================================
 
     void initGlut(int argc, char* argv[]);
     void initGraphics(const hduVector3Dd &LLB, const hduVector3Dd &TRF);

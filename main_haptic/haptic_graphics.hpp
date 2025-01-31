@@ -44,8 +44,8 @@ namespace graphics
 
         const double radius_ = 0.5;
 
-        // Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
-        Kinematic kinematic_ = Kinematic(new KDLKinematic());
+        Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
+        // Kinematic kinematic_ = Kinematic(new KDLKinematic());
         // DrakeKinematic* Drake_solver = new DrakeKinematic("../robots/iiwa.urdf");
         // static Kinematic kinematic_ = Kinematic(Drake_solver);
 

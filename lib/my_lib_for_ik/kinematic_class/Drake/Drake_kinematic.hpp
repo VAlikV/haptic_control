@@ -31,7 +31,7 @@ private:
     drake::multibody::MultibodyPlant<double> plant_;
     std::unique_ptr<drake::systems::Context<double>> context_;
 
-    drake::multibody::InverseKinematics* ik_;
+    // drake::multibody::InverseKinematics* ik_;
 
     Eigen::Matrix<double, N_JOINTS, 1> thetta_max_;
     Eigen::Matrix<double, N_JOINTS, 1> thetta_min_;

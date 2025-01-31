@@ -352,10 +352,10 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         params.thetta_ = params.kinematic_.getQDeg();
         server.setMsg(params.thetta_);
 
-        // std::cout << "Статус: " << state << std::endl;
-        // std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl;
+        std::cout << "Статус: " << state << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl;
         
-        // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
+        std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
 
 
         last_time = clock();

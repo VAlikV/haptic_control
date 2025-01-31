@@ -28,14 +28,14 @@ identity_orientation_(drake::math::RotationMatrix<double>::Identity())
 
     this->FK();
 
-    ik_ = new drake::multibody::InverseKinematics(plant_);
+    // ik_ = new drake::multibody::InverseKinematics(plant_);
 
 }
 
 DrakeKinematic::~DrakeKinematic()
 {
-    delete ik_;
-    ik_ = nullptr;
+    // delete ik_;
+    // ik_ = nullptr;
 }
 
 // ----------------------------------------------------------------------- Сетеры/Гетеры
@@ -131,6 +131,8 @@ int DrakeKinematic::IK()
     rotation_previous_ = rotation_;
     thetta_previous_ = thetta_;
 
+    drake::multibody::InverseKinematics* ik_ = new drake::multibody::InverseKinematics(plant_);
+
     target_orientation_ = drake::math::RotationMatrix<double>(rotation_.transpose());
     const drake::multibody::Frame<double>& end_effector_frame = plant_.GetFrameByName("iiwa_link_ee");
 
@@ -154,10 +156,18 @@ int DrakeKinematic::IK()
 
     if (result.is_success()) {
         thetta_ = result.GetSolution(ik_->q());
+
+        delete ik_;
+        ik_ = nullptr;
+
         return 1;
 
     } else {
         thetta_ = result.GetSolution(ik_->q());
+
+        delete ik_;
+        ik_ = nullptr;
+        
         return -1;
     }
 

@@ -317,8 +317,8 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     {
         params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
 
-        params.initial_pos_ << 0.5, 0.0, 0.5;
-        params.current_pos_ << 0.5, 0.0, 0.5;
+        params.initial_pos_ << 0.0, -0.5, 0.5;
+        params.current_pos_ << 0.0, -0.5, 0.5;
 
         first = false;
     }
@@ -332,9 +332,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         params.temp_ = params.current_pos_;
 
-        params.current_pos_.x() = params.current_pos_.x() + params.delta_position_[0]/100;
-        params.current_pos_.y() = params.current_pos_.y() + params.delta_position_[1]/100;
-        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[2]/100;
+        params.current_pos_.x() = params.current_pos_.x() + params.delta_position_[0]/1000;
+        params.current_pos_.y() = params.current_pos_.y() + params.delta_position_[1]/1000;
+        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[2]/1000;
 
         if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
         {
@@ -349,13 +349,13 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         t = clock();
         
         state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
-        params.thetta_ = params.kinematic_.getQDeg();
+        params.thetta_ = params.kinematic_.getQRad();
         server.setMsg(params.thetta_);
 
         std::cout << "Статус: " << state << std::endl;
-        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose()*180/M_PI << std::endl;
         
-        std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
+        // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
 
 
         last_time = clock();
@@ -378,11 +378,11 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         t = clock();
 
         state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
-        params.thetta_ = params.kinematic_.getQDeg();
+        params.thetta_ = params.kinematic_.getQRad();
         server.setMsg(params.thetta_);
 
         std::cout << "Статус: " << state << std::endl;
-        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose() << std::endl << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose()*180/M_PI << std::endl << std::endl;
 
         last_time = clock();
 

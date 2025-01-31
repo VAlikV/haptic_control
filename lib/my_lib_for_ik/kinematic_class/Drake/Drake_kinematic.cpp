@@ -152,7 +152,7 @@ int DrakeKinematic::IK()
     const drake::solvers::MathematicalProgram* prog = &(ik_->prog());
 
     Eigen::VectorXd initial_guess = Eigen::VectorXd::Zero(plant_.num_positions());
-    const drake::solvers::MathematicalProgramResult result = drake::solvers::Solve(*prog, initial_guess /* thetta_ */);
+    const drake::solvers::MathematicalProgramResult result = drake::solvers::Solve(*prog, /* initial_guess */ thetta_);
 
     if (result.is_success()) {
         thetta_ = result.GetSolution(ik_->q());

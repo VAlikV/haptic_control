@@ -46,8 +46,6 @@ namespace graphics
 
         Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
         // Kinematic kinematic_ = Kinematic(new KDLKinematic());
-        // DrakeKinematic* Drake_solver = new DrakeKinematic("../robots/iiwa.urdf");
-        // static Kinematic kinematic_ = Kinematic(Drake_solver);
 
         Eigen::Array<double, 7,1> thetta_;
     };

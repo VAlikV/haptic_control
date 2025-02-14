@@ -346,6 +346,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         params.previous_position_ = params.position_;
 
+        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
+
         t = clock();
         
         state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
@@ -357,7 +360,6 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         
         // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
 
-
         last_time = clock();
 
         std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
@@ -365,28 +367,6 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     else if (!(btn_1))
     {
         params.previous_position_ = params.position_;
-    }
-
-    if ((btn_2) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
-    {
-
-        t = clock();
-
-        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
-        std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
-
-        t = clock();
-
-        state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
-        params.thetta_ = params.kinematic_.getQRad();
-        server.setMsg(params.thetta_);
-
-        std::cout << "Статус: " << state << std::endl;
-        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose()*180/M_PI << std::endl << std::endl;
-
-        last_time = clock();
-
-        std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
     }
 
     // hduVector3Dd pos;

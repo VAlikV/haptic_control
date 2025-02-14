@@ -149,16 +149,16 @@ Eigen::Array<double,N_JOINTS,1> SNSKinematic::getNullBias()
 
 // -----------------------
 
-void SNSKinematic::setPositionVector(const Eigen::Array<double,3,1> &position)
+void SNSKinematic::setPositionVector(const Eigen::Vector3d &position)
 {
     endefector_.p.x(position(0));
     endefector_.p.y(position(1));
     endefector_.p.z(position(2));
 }
 
-Eigen::Array<double,3,1> SNSKinematic::getPositionVector()
+Eigen::Vector3d SNSKinematic::getPositionVector()
 {
-    Eigen::Array<double,3,1> pos;
+    Eigen::Vector3d pos;
     pos << endefector_.p.x(), endefector_.p.y(), endefector_.p.z();
     return pos;
 }

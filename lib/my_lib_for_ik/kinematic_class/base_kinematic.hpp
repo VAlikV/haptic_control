@@ -15,7 +15,7 @@ namespace iiwa_kinematics
     const double LIMITS_VELOCITY[N_JOINTS] = {10, 10, 10, 10, 10, 10, 10};
     const double LIMITS_ACCELERATION[N_JOINTS] = {100, 100, 100, 100, 100, 100, 100};
 
-    const double INIT[N_JOINTS] = {-0.19652407, 0.15269886, 0.21432643, 1.96000475, 2.93215314, -0.15599753, 1.40481551};
+    const double INIT[N_JOINTS] = {-0.19652407, 0.15269886, 0.21432643, 1.96000475, 2.93215314/2, -0.15599753, 1.40481551};
 
     const double LINKS[N_JOINTS] = {0.34, 0, 0.4, 0, 0.4, 0, 0.126};
 
@@ -47,8 +47,8 @@ namespace iiwa_kinematics
         virtual void setRotationMatrix(const Eigen::Matrix<double,3,3> &rotation) = 0;
         virtual Eigen::Matrix<double,3,3> getRotationMatrix() = 0;
 
-        virtual void setPositionVector(const Eigen::Array<double,3,1> &position) = 0;
-        virtual Eigen::Array<double,3,1> getPositionVector() = 0;
+        virtual void setPositionVector(const Eigen::Vector3d &position) = 0;
+        virtual Eigen::Vector3d getPositionVector() = 0;
 
         virtual Eigen::Matrix<double,N_JOINTS,3> getJointPose() = 0;    
 

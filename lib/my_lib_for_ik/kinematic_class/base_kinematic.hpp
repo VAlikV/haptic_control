@@ -50,7 +50,9 @@ namespace iiwa_kinematics
         virtual void setPositionVector(const Eigen::Vector3d &position) = 0;
         virtual Eigen::Vector3d getPositionVector() = 0;
 
-        virtual Eigen::Matrix<double,N_JOINTS,3> getJointPose() = 0;    
+        virtual Eigen::Matrix<double,N_JOINTS,3> getJointPose() = 0;
+
+        virtual Eigen::Matrix<double,6,1> getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque) = 0;       
 
         // ----------------------------------------------------------------------- Кинематика
 

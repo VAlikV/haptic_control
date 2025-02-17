@@ -81,6 +81,8 @@ public:
     Eigen::Vector3d getPositionVector() override;
 
     Eigen::Matrix<double,N_JOINTS,3> getJointPose();
+    
+    Eigen::Matrix<double,6,1> getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque);
 
     int FK() override;
     // bool FK(const Eigen::Array<double,N_JOINTS,1> &thetta) override;

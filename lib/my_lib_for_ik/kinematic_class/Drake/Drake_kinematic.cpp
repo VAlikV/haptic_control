@@ -104,6 +104,49 @@ Eigen::Matrix<double,N_JOINTS,3> DrakeKinematic::getJointPose()
     return joint_pose;
 }
 
+// -----------------------
+
+Eigen::Matrix<double,6,1> DrakeKinematic::getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque)
+{
+    // Eigen::Matrix<double,3,1> force;
+
+    const drake::multibody::Body<double>& end_effector = plant_.GetBodyByName("iiwa_link_ee");
+
+    // Устанавливаем положение в контексте
+    plant_.SetPositions(context_.get(), thetta.matrix());
+
+    Eigen::Vector3d p_BoBp_B(0, 0, 0);
+    Eigen::MatrixX<double> J(6, plant_.num_velocities());
+
+    plant_.CalcJacobianSpatialVelocity(
+        *context_, drake::multibody::JacobianWrtVariable::kV, end_effector.body_frame(),
+        p_BoBp_B,  // Позиция Bp относительно Bo в координатах B
+        plant_.world_frame(),  // Скорости относительно мира
+        plant_.world_frame(),  // Выражаем Якобиан в мировой системе
+        &J);
+
+    // Вычисляем геометрический Якобиан J (6×n)
+    // Eigen::MatrixX<double> J = plant_.CalcJacobianSpatialVelocity(
+    //     *context_, drake::multibody::JacobianWrtVariable::kV, end_effector.body_frame(),
+    //     end_effector.body_frame().CalcPoseInWorld(*context_).translation(),
+    //     plant_.world_frame(), plant_.world_frame());
+
+    // std::cout << "Якобиан J:\n" << J << std::endl;
+
+    // Вычисляем силу на эндеффекторе: f = J^(-T) * τ
+
+    Eigen::Vector<double,7> tau = torque.matrix();
+
+    std::cout << "SIZE=========================== " << tau.size() << std::endl;
+
+
+    Eigen::VectorXd force = J.transpose().fullPivHouseholderQr().solve(tau);
+
+    std::cout << "SIZE=========================== " << force.size() << std::endl;
+    
+    return force;
+}
+
 // ----------------------------------------------------------------------- Кинематика
 
 int DrakeKinematic::FK()

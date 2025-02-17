@@ -95,6 +95,15 @@ Eigen::Matrix<double,N_JOINTS,3> PinKinematic::getJointPose()
     return joint_pose;
 }
 
+// -----------------------
+
+Eigen::Matrix<double,6,1> PinKinematic::getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque)
+{
+    Eigen::Matrix<double,6,1> force;
+    
+    return force;
+}
+
 // ----------------------------------------------------------------------- Кинематика
 
 int PinKinematic::FK()

@@ -76,6 +76,13 @@ Eigen::Matrix<double,N_JOINTS,3> Kinematic::getJointPose()
     return kinematic_solver_->getJointPose();
 }
 
+// -----------------------
+
+Eigen::Matrix<double,6,1> Kinematic::getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque)
+{
+    return kinematic_solver_->getForce(thetta, torque);
+}
+
 // ----------------------------------------------------------------------- Кинематика
 
 int Kinematic::FK()

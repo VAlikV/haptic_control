@@ -125,24 +125,10 @@ Eigen::Matrix<double,6,1> DrakeKinematic::getForce(const Eigen::Array<double,N_J
         plant_.world_frame(),  // Выражаем Якобиан в мировой системе
         &J);
 
-    // Вычисляем геометрический Якобиан J (6×n)
-    // Eigen::MatrixX<double> J = plant_.CalcJacobianSpatialVelocity(
-    //     *context_, drake::multibody::JacobianWrtVariable::kV, end_effector.body_frame(),
-    //     end_effector.body_frame().CalcPoseInWorld(*context_).translation(),
-    //     plant_.world_frame(), plant_.world_frame());
-
     // std::cout << "Якобиан J:\n" << J << std::endl;
 
     // Вычисляем силу на эндеффекторе: f = J^(-T) * τ
-
-    Eigen::Vector<double,7> tau = torque.matrix();
-
-    std::cout << "SIZE=========================== " << tau.size() << std::endl;
-
-
-    Eigen::VectorXd force = J.transpose().fullPivHouseholderQr().solve(tau);
-
-    std::cout << "SIZE=========================== " << force.size() << std::endl;
+    Eigen::VectorXd force = J.transpose().fullPivHouseholderQr().solve(torque.matrix());
     
     return force;
 }

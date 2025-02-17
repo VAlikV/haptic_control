@@ -274,11 +274,12 @@ void graphics::handleMenu(int ID)
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
-hduVector3Dd graphics::forceField(hduVector3Dd pos)
+hduVector3Dd graphics::forceField(Eigen::Array<double, 7,1> thetta_, Eigen::Array<double, 7,1> torque_)
 {
-    // double dist = pos.magnitude();
     
     hduVector3Dd forceVec(0,0,0);
+
+    
     
     // if two charges overlap...
     // if(dist < sphereRadius*2.0) 
@@ -315,10 +316,13 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
     if (first)
     {
-        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        // params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        params.current_rot_ << -1, 0, 0,
+                                0, 1, 0,
+                                0, 0, -1;
 
-        params.initial_pos_ << 0.0, -0.5, 0.5;
-        params.current_pos_ << 0.0, -0.5, 0.5;
+        params.initial_pos_ << 0.5, 0.0, 0.7;
+        params.current_pos_ << 0.5, 0.0, 0.7;
 
         first = false;
     }
@@ -332,9 +336,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         params.temp_ = params.current_pos_;
 
-        params.current_pos_.x() = params.current_pos_.x() + params.delta_position_[0]/1000;
-        params.current_pos_.y() = params.current_pos_.y() + params.delta_position_[1]/1000;
-        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[2]/1000;
+        params.current_pos_.x() = params.current_pos_.x() - params.delta_position_[2]/1000;
+        params.current_pos_.y() = params.current_pos_.y() - params.delta_position_[0]/1000;
+        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[1]/1000;
 
         if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
         {
@@ -346,7 +350,7 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         params.previous_position_ = params.position_;
 
-        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        // params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
         std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
 
         t = clock();
@@ -368,6 +372,15 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     {
         params.previous_position_ = params.position_;
     }
+
+    if (server.getMsg(params.torque_msg_))
+    {
+            
+        // std::cout << params.torque_msg_.transpose() << std::endl;
+        params.current_kuka_thetta_ << params.torque_msg_[0], params.torque_msg_[1], params.torque_msg_[2], params.torque_msg_[3], params.torque_msg_[4], params.torque_msg_[5], params.torque_msg_[6]; 
+        params.current_kuka_torque_ << params.torque_msg_[7], params.torque_msg_[8], params.torque_msg_[9], params.torque_msg_[10], params.torque_msg_[11], params.torque_msg_[12], params.torque_msg_[13]; 
+
+    };      // Чтение пришедших по UDP данных
 
     // hduVector3Dd pos;
     // hdGetDoublev(HD_CURRENT_POSITION,pos);

@@ -9,7 +9,7 @@
 
 namespace kinematics_helper
 {
-    const double dh_theta[6] = {-M_PI/2, 0, M_PI/2, 0, 0, 0};                // Параметры ДХ хаптика
+    const double dh_theta[6] = {0, 0, M_PI/2, 0, 0, 0};                // Параметры ДХ хаптика
     const double dh_alpha[6] = {-M_PI/2, 0, M_PI/2, -M_PI/2, M_PI/2, 0};     // Параметры ДХ хаптика
 
     Eigen::Matrix<double,3,3> R(double theta, double alpha);

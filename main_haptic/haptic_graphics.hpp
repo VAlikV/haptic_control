@@ -48,6 +48,12 @@ namespace graphics
         // Kinematic kinematic_ = Kinematic(new KDLKinematic());
 
         Eigen::Array<double, 7,1> thetta_;
+
+        Eigen::Array<double, 14,1> torque_msg_;
+
+        Eigen::Array<double, 7,1> current_kuka_thetta_;
+        Eigen::Array<double, 7,1> current_kuka_torque_;
+
     };
 
     static HHD ghHD = HD_INVALID_HANDLE;
@@ -93,7 +99,7 @@ namespace graphics
     void handleIdle(void);
     void handleMenu(int ID);
 
-    hduVector3Dd forceField(hduVector3Dd pos);
+    hduVector3Dd forceField(Eigen::Array<double, 7,1> thetta_, Eigen::Array<double, 7,1> torque_);
     HDCallbackCode HDCALLBACK Callback(void *data);
     void HapticControl();
 

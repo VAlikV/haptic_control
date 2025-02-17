@@ -52,17 +52,14 @@ namespace server
         // ---------------------------------------------------- type received data
 		// -----------------------------------------------------------------------
 
-        // std::queue<double> messageQueue_;
-        // std::mutex mtx_; 
-
-        // std::atomic<int> angle_;
+        Eigen::Array<double, 14,1> torque_msg_;
+        ring_buffer<Eigen::Array<double, 14,1>> reciev_buffer_;
 
         // -----------------------------------------------------------------------
         // ------------------------------------------------- type transmitted data
 		// -----------------------------------------------------------------------
 
         Eigen::Array<double, 7,1> thetta_msg_;
-
         ring_buffer<Eigen::Array<double, 7,1>> transmit_buffer_;
 
 		// -----------------------------------------------------------------------
@@ -78,11 +75,12 @@ namespace server
         void start();
         void stop();
 
-        bool getMsg();
-        bool setMsg(Eigen::Array<double, 7,1> thetta);
+        bool getMsg(Eigen::Array<double,14,1> &torque);
+        bool setMsg(Eigen::Array<double,7,1> &thetta);
     };
 
     json eigenArrayToJson(const Eigen::ArrayXd& array);
+    Eigen::ArrayXd jsonToEigenArray(const json& j);
 }
 
 #endif

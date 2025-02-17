@@ -7,7 +7,8 @@ server_ip_(server_ip),
 server_port_(server_port),
 client_ip_(client_ip),
 client_port_(client_port),
-transmit_buffer_(1024)
+transmit_buffer_(1024),
+reciev_buffer_(1024)
 {
     
 }
@@ -76,27 +77,25 @@ void UDPServer::run_receive()
 					&len_); 
 		buffer_[n_] = '\0';
 
-		std::cout << buffer_ << std::endl;
+		// std::cout << buffer_ << std::endl;
 
 		// -----------------------------------------------------------------------
         // ---------------------------------------------- processing received data
 		// -----------------------------------------------------------------------
 
-		// std::string str(buffer_);
+		std::string str(buffer_);
 
-		// try {
-        //     double d =  std::stod(str);
-		// 	angle_ = int(d*10000);
+		try {
+			json j = json::parse(str);
 
-		// 	// mtx_.lock();
-		// 	// messageQueue_.push(d);
-		// 	// mtx_.unlock();
+			Eigen::Array<double,14,1> thetta = server::jsonToEigenArray(j);
+			reciev_buffer_.push(thetta);
 
-		// } catch (const std::invalid_argument&) {
-		// 	std::cerr << "Некорректное сообщение: не число: " << str << std::endl;
-		// } catch (const std::out_of_range&) {
-		// 	std::cerr << "Число вне допустимого диапазона: " << str << std::endl;
-        // } 
+		} catch (const std::invalid_argument&) {
+			std::cerr << "Некорректное сообщение: не число: " << str << std::endl;
+		} catch (const std::out_of_range&) {
+			std::cerr << "Число вне допустимого диапазона: " << str << std::endl;
+        } 
 	}
 }
 
@@ -135,24 +134,12 @@ void UDPServer::closeSocket()
 	}
 }
 
-bool UDPServer::getMsg()
+bool UDPServer::getMsg(Eigen::Array<double,14,1> &torque)
 {
-
-	// mtx_.lock();
-	// if (messageQueue_.empty()) {
-	// 	mtx_.unlock();
-	// 	return false;
-	// }
-	// number = messageQueue_.front();
-	// messageQueue_.pop();
-	// mtx_.unlock();
-
-	// number = double(angle_)/10000;
-
-	return true;
+	return reciev_buffer_.pop(torque);
 }
 
-bool UDPServer::setMsg(Eigen::Array<double, 7,1> thetta)
+bool UDPServer::setMsg(Eigen::Array<double, 7,1> &thetta)
 {
 
 	msg_ready_ = transmit_buffer_.push(thetta);
@@ -167,4 +154,12 @@ json server::eigenArrayToJson(const Eigen::ArrayXd& array) {
 		j.push_back(array[i]); // Добавляем элементы в массив
 	}
 	return j;
+}
+
+Eigen::ArrayXd server::jsonToEigenArray(const json& j) {
+    Eigen::ArrayXd array(j.size()); // Создаем массив нужного размера
+    for (size_t i = 0; i < j.size(); ++i) {
+        array(i) = j[i]; // Заполняем элементами из JSON
+    }
+    return array;
 }

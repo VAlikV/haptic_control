@@ -279,7 +279,9 @@ hduVector3Dd graphics::forceField(Eigen::Array<double, 7,1> thetta_, Eigen::Arra
     
     hduVector3Dd forceVec(0,0,0);
 
-    
+    // params.force_ = params.kinematic_.getForce(params.current_kuka_thetta_, params.current_kuka_torque_);
+
+    // std::cout << "Force: " << params.force_.transpose() << std::endl;
     
     // if two charges overlap...
     // if(dist < sphereRadius*2.0) 
@@ -375,19 +377,23 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
     if (server.getMsg(params.torque_msg_))
     {
-            
         // std::cout << params.torque_msg_.transpose() << std::endl;
         params.current_kuka_thetta_ << params.torque_msg_[0], params.torque_msg_[1], params.torque_msg_[2], params.torque_msg_[3], params.torque_msg_[4], params.torque_msg_[5], params.torque_msg_[6]; 
         params.current_kuka_torque_ << params.torque_msg_[7], params.torque_msg_[8], params.torque_msg_[9], params.torque_msg_[10], params.torque_msg_[11], params.torque_msg_[12], params.torque_msg_[13]; 
 
-    };      // Чтение пришедших по UDP данных
+        params.force_ = params.kinematic_.getForce(params.current_kuka_thetta_, params.current_kuka_torque_);
 
-    // hduVector3Dd pos;
-    // hdGetDoublev(HD_CURRENT_POSITION,pos);
-    // hduVector3Dd forceVec;
-    // forceVec = forceField(pos);
-    // hdSetDoublev(HD_CURRENT_FORCE, forceVec);
-        
+        hduVector3Dd forceVec;
+
+        forceVec[0] = params.force_[0];
+        forceVec[1] = params.force_[1];
+        forceVec[2] = params.force_[2];
+
+        // forceVec = forceField(pos);
+        hdSetDoublev(HD_CURRENT_FORCE, forceVec);
+
+    };      // Чтение пришедших по UDP данных
+    
     hdEndFrame(hHD);
 
     HDErrorInfo error;

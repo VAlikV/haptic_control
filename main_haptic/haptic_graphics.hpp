@@ -54,6 +54,8 @@ namespace graphics
         Eigen::Array<double, 7,1> current_kuka_thetta_;
         Eigen::Array<double, 7,1> current_kuka_torque_;
 
+        Eigen::Array<double, 6,1> force_;
+
     };
 
     static HHD ghHD = HD_INVALID_HANDLE;

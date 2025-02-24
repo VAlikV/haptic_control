@@ -316,49 +316,63 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     btn_1 = (nButtons & HD_DEVICE_BUTTON_1) ? HD_TRUE : HD_FALSE;
     btn_2 = (nButtons & HD_DEVICE_BUTTON_2) ? HD_TRUE : HD_FALSE;
 
+    // Первый запуск
     if (first)
-    {
+    {   
+        // Задание начальной ориентации
         // params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
         params.current_rot_ << -1, 0, 0,
                                 0, 1, 0,
                                 0, 0, -1;
 
+        // Задание начального положения
         params.initial_pos_ << 0.5, 0.0, 0.7;
         params.current_pos_ << 0.5, 0.0, 0.7;
 
         first = false;
     }
 
+    // обработка нажатий на кнопки
     if ((btn_1) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25))
     {
 
         t = clock();
 
+        // Смещение хаптика отнисительно предыдущего положения
         params.delta_position_ = params.position_ - params.previous_position_;
 
+        // Сохранение предыдущего положения
         params.temp_ = params.current_pos_;
 
+        // Изменение положения на смещение 
         params.current_pos_.x() = params.current_pos_.x() - params.delta_position_[2]/1000;
         params.current_pos_.y() = params.current_pos_.y() - params.delta_position_[0]/1000;
         params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[1]/1000;
 
+        // Проверка на выход за пределы разрешенной области 
         if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
-        {
+        {   
+            // Откат к предыдущиму положению
             params.current_pos_ = params.temp_;
             std::cout << std::endl << "False" << std::endl;
         }
 
         std::cout << "Текущая позиция:\n" << params.current_pos_.x() << "\t" << params.current_pos_.y() << "\t" << params.current_pos_.z() << std::endl;
-
+        
+        // Сохраннение предыдущей позиции (для расчета смещения)
         params.previous_position_ = params.position_;
 
+        // Расчет ориентации
         // params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
         std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
 
         t = clock();
-        
+
+        // Решение обратной кинематики        
         state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
         params.thetta_ = params.kinematic_.getQRad();
+
+        //Отправка углов на контроллер
         server.setMsg(params.thetta_);
 
         std::cout << "Статус: " << state << std::endl;
@@ -375,24 +389,30 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         params.previous_position_ = params.position_;
     }
 
+    // Если пришло сообщение с контроллера
     if (server.getMsg(params.torque_msg_))
     {
         // std::cout << params.torque_msg_.transpose() << std::endl;
+
+        // Текущие углы куки
         params.current_kuka_thetta_ << params.torque_msg_[0], params.torque_msg_[1], params.torque_msg_[2], params.torque_msg_[3], params.torque_msg_[4], params.torque_msg_[5], params.torque_msg_[6]; 
+        // Текущие торки в джоинтах куки
         params.current_kuka_torque_ << params.torque_msg_[7], params.torque_msg_[8], params.torque_msg_[9], params.torque_msg_[10], params.torque_msg_[11], params.torque_msg_[12], params.torque_msg_[13]; 
 
+        // Расчет силы на эндефекторе
         params.force_ = params.kinematic_.getForce(params.current_kuka_thetta_, params.current_kuka_torque_);
 
+        // Масштабирование вектора силы
         hduVector3Dd forceVec;
+        forceVec[2] = -params.force_[3]/20;
+        forceVec[0] = -params.force_[4]/20;
+        forceVec[1] = params.force_[5]/20;
 
-        forceVec[0] = params.force_[0];
-        forceVec[1] = params.force_[1];
-        forceVec[2] = params.force_[2];
-
-        // forceVec = forceField(pos);
+        // Задание силы
+        // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;
         hdSetDoublev(HD_CURRENT_FORCE, forceVec);
 
-    };      // Чтение пришедших по UDP данных
+    };
     
     hdEndFrame(hHD);
 

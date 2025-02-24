@@ -25,8 +25,9 @@ namespace graphics
         HHD m_hHD;
         hduVector3Dd position;
         hduVector3Dd force;
-    };
+    };  
 
+    // Параметры кинематики и прочего
     struct Position_Params
     {
         hduVector3Dd previous_position_; // Предыдущее положение хаптика
@@ -36,25 +37,25 @@ namespace graphics
         hduVector3Dd joint_angles_;      // Углы в джоинтах
         hduVector3Dd wrist_angles_;      // Углы в кулаке
 
-        Eigen::Matrix<double,3,3> current_rot_;
+        Eigen::Matrix<double,3,3> current_rot_; // Матрица ориентации
 
-        Eigen::Vector3d initial_pos_;
-        Eigen::Vector3d temp_;
-        Eigen::Vector3d current_pos_;
+        Eigen::Vector3d initial_pos_;   // Начальное положение
+        Eigen::Vector3d temp_;          // Временный вектор
+        Eigen::Vector3d current_pos_;   // Текущее положение
 
-        const double radius_ = 0.5;
+        const double radius_ = 0.5;     // Радиус разрешенной области
 
-        Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));
+        Kinematic kinematic_ = Kinematic(new DrakeKinematic("../robots/iiwa.urdf"));    // Решатель кинематики
         // Kinematic kinematic_ = Kinematic(new KDLKinematic());
 
-        Eigen::Array<double, 7,1> thetta_;
+        Eigen::Array<double, 7,1> thetta_;          // Рассчитанные углы в джоинтах
 
-        Eigen::Array<double, 14,1> torque_msg_;
+        Eigen::Array<double, 14,1> torque_msg_;     // Сообщение от контроллера
 
-        Eigen::Array<double, 7,1> current_kuka_thetta_;
-        Eigen::Array<double, 7,1> current_kuka_torque_;
+        Eigen::Array<double, 7,1> current_kuka_thetta_;     // Реальное положение куки 
+        Eigen::Array<double, 7,1> current_kuka_torque_;     // Торки в джоинтах куки
 
-        Eigen::Array<double, 6,1> force_;
+        Eigen::Array<double, 6,1> force_;   // Вектор силы и моменты
 
     };
 
@@ -63,23 +64,23 @@ namespace graphics
 
     // ================================================================================
 
-    static double sphereRadius = 5.0;
+    static double sphereRadius = 5.0;   // Радиус сферки на экране
 
-    static bool first = true;
-    static int state;
+    static bool first = true;   // Первый запуск
+    static int state;           // Статус решения обратной кинематики
 
     static int nButtons = 0;
-    static bool btn_1;
-    static bool btn_2;
+    static bool btn_1;          // Нажата 1ая кнопка
+    static bool btn_2;          // Нажата 2ая кнопка
 
-    static clock_t last_time;
+    static clock_t last_time;   
     static clock_t init_time;
 
     static clock_t t;
     
-    static Position_Params params;
+    static Position_Params params;  // Параметры куки
 
-    static server::UDPServer server("127.0.0.1", 8080, "127.0.0.1", 8081);
+    static server::UDPServer server("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
 
     // ================================================================================
 

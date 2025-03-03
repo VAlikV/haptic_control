@@ -3,13 +3,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <algorithm>
 
-#include <HD/hd.h>
-# include <GL/glut.h>
+// #include <HD/hd.h>
+#include <HL/hl.h>
+#include <GL/glut.h>
+
+#include<HLU/hlu.h>
 
 #include <HDU/hduError.h>
 #include <HDU/hduVector.h>
 #include <HDU/hduMatrix.h>
+#include <HDU/hduQuaternion.h>
 
 #include <Eigen/Dense>
 
@@ -36,6 +41,9 @@ namespace graphics
 
         hduVector3Dd joint_angles_;      // Углы в джоинтах
         hduVector3Dd wrist_angles_;      // Углы в кулаке
+
+        // hduQuaternion quat_;
+        HDdouble transform_[16];
 
         Eigen::Matrix<double,3,3> current_rot_; // Матрица ориентации
 
@@ -68,6 +76,8 @@ namespace graphics
 
     static bool first = true;   // Первый запуск
     static int state;           // Статус решения обратной кинематики
+
+    static Eigen::Matrix<double,3,3> ad_rot_;
 
     static int nButtons = 0;
     static bool btn_1;          // Нажата 1ая кнопка

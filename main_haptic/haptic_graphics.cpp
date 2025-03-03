@@ -306,10 +306,16 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
     HHD hHD = hdGetCurrentDevice();
 
     hdBeginFrame(hHD);
+    // hlBeginFrame();
 
     hdGetDoublev(HD_CURRENT_POSITION, params.position_);
     hdGetDoublev(HD_CURRENT_JOINT_ANGLES, params.joint_angles_);
     hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, params.wrist_angles_);
+    // hdGetDoublev(HD_CURRENT_TRANSFORM, params.transform_);
+    // hlGetDoublev(HL_DEVICE_ROTATION, params.quat_);
+
+    // std::cout << params.joint_angles_[0]*180/M_PI << "\t" << params.joint_angles_[1]*180/M_PI << "\t" << params.joint_angles_[2]*180/M_PI << "\t" << params.wrist_angles_[0]*180/M_PI << "\t" << params.wrist_angles_[1]*180/M_PI << "\t" << params.wrist_angles_[2]*180/M_PI << std::endl;
+    // std::cout << params.wrist_angles_[0]*180/M_PI << "\t" << params.wrist_angles_[1]*180/M_PI << "\t" << params.wrist_angles_[2]*180/M_PI << std::endl;
 
     hdGetIntegerv(HD_CURRENT_BUTTONS, &(nButtons));
     
@@ -325,9 +331,17 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
                                 0, 1, 0,
                                 0, 0, -1;
 
+        // ad_rot_ << -1, 0, 0,
+        //             0, 0, -1,
+        //             0, -1, 0;
+                    
+        ad_rot_ << -1, 0, 0,
+                    0, -1, 0,
+                    0, 0, 1;
+
         // Задание начального положения
-        params.initial_pos_ << 0.5, 0.0, 0.7;
-        params.current_pos_ << 0.5, 0.0, 0.7;
+        params.initial_pos_ << 0.5, 0.0, 0.6;
+        params.current_pos_ << 0.5, 0.0, 0.6;
 
         first = false;
     }
@@ -384,7 +398,63 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
     }
-    else if (!(btn_1))
+    else if (((btn_2) && (((double)(clock() - last_time))/CLOCKS_PER_SEC*1000 >= 25)))
+    {
+        t = clock();
+
+        // Смещение хаптика отнисительно предыдущего положения
+        params.delta_position_ = params.position_ - params.previous_position_;
+
+        // Сохранение предыдущего положения
+        params.temp_ = params.current_pos_;
+
+        // Изменение положения на смещение 
+        params.current_pos_.x() = params.current_pos_.x() - params.delta_position_[2]/1000;
+        params.current_pos_.y() = params.current_pos_.y() - params.delta_position_[0]/1000;
+        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[1]/1000;
+
+        // Проверка на выход за пределы разрешенной области 
+        if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
+        {   
+            // Откат к предыдущиму положению
+            params.current_pos_ = params.temp_;
+            std::cout << std::endl << "False" << std::endl;
+        }
+
+        std::cout << "Текущая позиция:\n" << params.current_pos_.x() << "\t" << params.current_pos_.y() << "\t" << params.current_pos_.z() << std::endl;
+        
+        // Сохраннение предыдущей позиции (для расчета смещения)
+        params.previous_position_ = params.position_;
+
+        // Расчет ориентации
+        // params.current_rot_ = Eigen::Quaternionf(params.quat_[0], params.quat_[1], params.quat_[2], params.quat_[3]).toRotationMatrix();
+        params.current_rot_ = kinematics_helper::FK(params.joint_angles_, params.wrist_angles_);
+        // params.current_rot_ << params.transform_[0], params.transform_[1], params.transform_[2],
+        //                     params.transform_[4], params.transform_[5], params.transform_[6],
+        //                     params.transform_[8], params.transform_[9], params.transform_[10];
+
+        // params.current_rot_ = ad_rot_ * params.current_rot_;
+        std::cout << std::endl << "Текущая матрица:\n" << params.current_rot_ << std::endl;
+
+        t = clock();
+
+        // Решение обратной кинематики        
+        state = params.kinematic_.IK(params.current_rot_, params.current_pos_);
+        params.thetta_ = params.kinematic_.getQRad();
+
+        //Отправка углов на контроллер
+        server.setMsg(params.thetta_);
+
+        std::cout << "Статус: " << state << std::endl;
+        std::cout << "Рассчитанные углы: " <<  params.thetta_.transpose()*180/M_PI << std::endl;
+        
+        // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
+
+        last_time = clock();
+
+        std::cout << "Время: " << ((double)(clock() - t))/CLOCKS_PER_SEC*1000 << std::endl << std::endl;
+    }
+    else if (!(btn_1) && !(btn_2))
     {
         params.previous_position_ = params.position_;
     }
@@ -404,9 +474,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         // Масштабирование вектора силы
         hduVector3Dd forceVec;
-        forceVec[2] = -params.force_[3]/20;
-        forceVec[0] = -params.force_[4]/20;
-        forceVec[1] = params.force_[5]/20;
+        forceVec[2] = std::clamp(-params.force_[3]/20, -3., 3.);
+        forceVec[0] = std::clamp(-params.force_[4]/20, -3., 3.);
+        forceVec[1] = std::clamp( params.force_[5]/20, -3., 3.);
 
         // Задание силы
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;

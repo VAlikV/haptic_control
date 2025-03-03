@@ -17,11 +17,11 @@ Eigen::Matrix<double,3,3> kinematics_helper::FK(hduVector3Dd& joint_angles, hduV
 
     for (int8_t i = 0; i < 3; ++i)
     {
-        rotation = rotation * R(dh_theta[i]+joint_angles[i], dh_alpha[i]);
+        rotation = rotation * R(dh_theta[i]+joint_angles[i]*dh_m[i], dh_alpha[i]);
     }
     for (int8_t i = 3; i < 6; ++i)
     {
-        rotation = rotation * R(dh_theta[i]+wrist_angles[i-3], dh_alpha[i]);
+        rotation = rotation * R(dh_theta[i]+wrist_angles[i-3]*dh_m[i], dh_alpha[i]);
     }
     return rotation;
 }

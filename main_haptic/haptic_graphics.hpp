@@ -33,8 +33,11 @@ namespace graphics
     };  
 
     // Параметры кинематики и прочего
-    struct Position_Params
+    struct All_Params
     {
+        double trans_factor_ = 1000;
+        double force_factor_ = 20;
+
         hduVector3Dd previous_position_; // Предыдущее положение хаптика
         hduVector3Dd position_;          // Положение хаптика
         hduVector3Dd delta_position_;    // Смещение хаптика
@@ -43,7 +46,7 @@ namespace graphics
         hduVector3Dd wrist_angles_;      // Углы в кулаке
 
         // hduQuaternion quat_;
-        HDdouble transform_[16];
+        // HDdouble transform_[16];
 
         Eigen::Matrix<double,3,3> current_rot_; // Матрица ориентации
 
@@ -72,6 +75,8 @@ namespace graphics
 
     // ================================================================================
 
+    static int mode = 1;    // 0 - точный, 1 - обычный, 2 - грубый
+
     static double sphereRadius = 5.0;   // Радиус сферки на экране
 
     static bool first = true;   // Первый запуск
@@ -88,7 +93,7 @@ namespace graphics
 
     static clock_t t;
     
-    static Position_Params params;  // Параметры куки
+    static All_Params params;  // Параметры куки
 
     static server::UDPServer server("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
 

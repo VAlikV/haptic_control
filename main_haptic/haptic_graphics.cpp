@@ -4,6 +4,32 @@ using namespace graphics;
 
 void graphics::initGlut(int argc, char* argv[])
 {
+
+    if (argc != 1)
+    {
+        mode = (int)(*argv[1] - '0');
+    
+        switch (mode)
+        {
+        case 0:     // Точный
+            params.trans_factor_ = 10000;
+            params.force_factor_ = 10;
+            break;
+        case 1:     // Обычный 
+            params.trans_factor_ = 1000;
+            params.force_factor_ = 20;
+            break;
+        case 2:     // Грубый
+            params.trans_factor_ = 100;
+            params.force_factor_ = 50;
+            break;
+        default:
+            params.trans_factor_ = 1000;
+            params.force_factor_ = 20;
+            break;
+        }
+    }
+
     // Initialize GLUT.
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -335,9 +361,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         //             0, 0, -1,
         //             0, -1, 0;
                     
-        ad_rot_ << -1, 0, 0,
-                    0, -1, 0,
-                    0, 0, 1;
+        // ad_rot_ << -1, 0, 0,
+        //             0, -1, 0,
+        //             0, 0, 1;
 
         // Задание начального положения
         params.initial_pos_ << 0.5, 0.0, 0.6;

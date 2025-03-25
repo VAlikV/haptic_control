@@ -5,30 +5,30 @@ using namespace graphics;
 void graphics::initGlut(int argc, char* argv[])
 {
 
-    if (argc != 1)
-    {
-        mode = (int)(*argv[1] - '0');
+    // if (argc != 1)
+    // {
+    //     mode = (int)(*argv[1] - '0');
     
-        switch (mode)
-        {
-        case 0:     // Точный
-            params.trans_factor_ = 10000;
-            params.force_factor_ = 10;
-            break;
-        case 1:     // Обычный 
-            params.trans_factor_ = 1000;
-            params.force_factor_ = 20;
-            break;
-        case 2:     // Грубый
-            params.trans_factor_ = 100;
-            params.force_factor_ = 50;
-            break;
-        default:
-            params.trans_factor_ = 1000;
-            params.force_factor_ = 20;
-            break;
-        }
-    }
+    //     switch (mode)
+    //     {
+    //     case 0:     // Точный
+    //         params.trans_factor_ = 10000;
+    //         params.force_factor_ = 10;
+    //         break;
+    //     case 1:     // Обычный 
+    //         params.trans_factor_ = 1000;
+    //         params.force_factor_ = 20;
+    //         break;
+    //     case 2:     // Грубый
+    //         params.trans_factor_ = 100;
+    //         params.force_factor_ = 50;
+    //         break;
+    //     default:
+    //         params.trans_factor_ = 1000;
+    //         params.force_factor_ = 20;
+    //         break;
+    //     }
+    // }
 
     // Initialize GLUT.
     glutInit(&argc, argv);
@@ -435,9 +435,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
         params.temp_ = params.current_pos_;
 
         // Изменение положения на смещение 
-        params.current_pos_.x() = params.current_pos_.x() - params.delta_position_[2]/1000;
-        params.current_pos_.y() = params.current_pos_.y() - params.delta_position_[0]/1000;
-        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[1]/1000;
+        params.current_pos_.x() = params.current_pos_.x() - params.delta_position_[2]/500;
+        params.current_pos_.y() = params.current_pos_.y() - params.delta_position_[0]/500;
+        params.current_pos_.z() = params.current_pos_.z() + params.delta_position_[1]/500;
 
         // Проверка на выход за пределы разрешенной области 
         if (!kinematics_helper::checkPos(params.current_pos_, params.initial_pos_, params.radius_))
@@ -500,9 +500,9 @@ HDCallbackCode HDCALLBACK graphics::Callback(void *data)
 
         // Масштабирование вектора силы
         hduVector3Dd forceVec;
-        forceVec[2] = std::clamp(-params.force_[3]/20, -3., 3.);
-        forceVec[0] = std::clamp(-params.force_[4]/20, -3., 3.);
-        forceVec[1] = std::clamp( params.force_[5]/20, -3., 3.);
+        forceVec[2] = std::clamp(-params.force_[3]/30, -3., 3.);
+        forceVec[0] = std::clamp(-params.force_[4]/30, -3., 3.);
+        forceVec[1] = std::clamp( params.force_[5]/30, -3., 3.);
 
         // Задание силы
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;

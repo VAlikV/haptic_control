@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     printf("Move the device around to feel a frictionless sphere\n\n");
     printf("Press any key to quit.\n\n");
 
-    while (!_kbhit())
+    while (1)
     {
         if (!hdWaitForCompletion(hCallback, HD_WAIT_CHECK_STATUS))
         {

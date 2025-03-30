@@ -1,4 +1,6 @@
-#include "Drake_kinematic.hpp"
+#include "drake_kinematic.hpp"
+
+using namespace iiwa_kinematics;
 
 DrakeKinematic::DrakeKinematic(std::string urdf_name):
 plant_(0.0), 
@@ -48,19 +50,6 @@ void DrakeKinematic::setQ(const Eigen::Array<double,N_JOINTS,1> &thetta)
 Eigen::Array<double,N_JOINTS,1> DrakeKinematic::getQ()
 {
     return thetta_.array();
-}
-
-// -----------------------
-
-void DrakeKinematic::setNullBias(const Eigen::Array<double,N_JOINTS,1> &thetta)
-{
-
-}
-
-Eigen::Array<double,N_JOINTS,1> DrakeKinematic::getNullBias()
-{
-    Eigen::Array<double,N_JOINTS,1> nulb;
-    return nulb;
 }
 
 // -----------------------

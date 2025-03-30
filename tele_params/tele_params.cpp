@@ -33,6 +33,10 @@ params::TeleState::TeleState(int mode)
     // Задание начального положения
     initial_pos_ << 0.5, 0.0, 0.6;
     current_pos_ << 0.5, 0.0, 0.6;
+
+    init_time_ = clock();
+    last_time_ = clock();
+    t_ = clock();
 }
 
 void params::TeleState::setHapticState(const HapicState& haptic_state)
@@ -148,6 +152,33 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
     else if (!(btn_1) && !(btn_2))
     {
         previous_position_ = position_;
+    }
+}
+
+hduVector3Dd params::TeleState::getForceVector()
+{
+    if (server_.getMsg(torque_msg_))
+    {
+        // std::cout << params.torque_msg_.transpose() << std::endl;
+
+        // Текущие углы куки
+        current_kuka_thetta_ << torque_msg_[0], torque_msg_[1], torque_msg_[2], torque_msg_[3], torque_msg_[4], torque_msg_[5], torque_msg_[6]; 
+        // Текущие торки в джоинтах куки
+        current_kuka_torque_ << torque_msg_[7], torque_msg_[8], torque_msg_[9], torque_msg_[10], torque_msg_[11], torque_msg_[12], torque_msg_[13]; 
+
+        // Расчет силы на эндефекторе
+        force_ = kinematic_.getForce(current_kuka_thetta_, current_kuka_torque_);
+
+        // Масштабирование вектора силы
+        forceVec_[2] = std::clamp(-force_[3]/30, -3., 3.);
+        forceVec_[0] = std::clamp(-force_[4]/30, -3., 3.);
+        forceVec_[1] = std::clamp( force_[5]/30, -3., 3.);
+
+        // Задание силы
+        // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;
+        
+        return forceVec_;
+
     }
 }
 

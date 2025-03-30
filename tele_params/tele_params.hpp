@@ -59,6 +59,8 @@ namespace params
 
         Eigen::Array<double, 6,1> force_;   // Вектор силы и моменты
 
+        hduVector3Dd forceVec_;
+
         // ================================================================================    
         // ================================================================================    
         // ================================================================================    
@@ -90,6 +92,8 @@ namespace params
     public:
         TeleState(int mode = 0);
         void setHapticState(const HapicState& haptic_state);
+        hduVector3Dd getForceVector();
+
         bool checkPos();
     };
 
@@ -99,6 +103,7 @@ namespace params
         hduVector3Dd joint_angles;      // Углы в джоинтах
         hduVector3Dd wrist_angles;      // Углы в кулаке
         int buttons = 0;                // Состояние кнопки
+        hduVector3Dd force;
     };     
 
     // ================================================================================    

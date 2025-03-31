@@ -23,6 +23,15 @@ using namespace iiwa_kinematics;
 
 namespace params
 {
+    struct HapicState
+    {
+        hduVector3Dd position;          // Положение хаптика
+        hduVector3Dd joint_angles;      // Углы в джоинтах
+        hduVector3Dd wrist_angles;      // Углы в кулаке
+        int buttons = 0;                // Состояние кнопки
+        hduVector3Dd force;
+    };  
+    
     class TeleState
     {
     private:
@@ -91,20 +100,12 @@ namespace params
 
     public:
         TeleState(int mode = 0);
+        ~TeleState();
         void setHapticState(const HapicState& haptic_state);
         hduVector3Dd getForceVector();
 
         bool checkPos();
-    };
-
-    struct HapicState
-    {
-        hduVector3Dd position;          // Положение хаптика
-        hduVector3Dd joint_angles;      // Углы в джоинтах
-        hduVector3Dd wrist_angles;      // Углы в кулаке
-        int buttons = 0;                // Состояние кнопки
-        hduVector3Dd force;
-    };     
+    };   
 
     // ================================================================================    
 

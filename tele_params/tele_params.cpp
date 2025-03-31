@@ -34,9 +34,16 @@ params::TeleState::TeleState(int mode)
     initial_pos_ << 0.5, 0.0, 0.6;
     current_pos_ << 0.5, 0.0, 0.6;
 
+    server_.start();
+
     init_time_ = clock();
     last_time_ = clock();
     t_ = clock();
+}
+
+TeleState::~TeleState()
+{
+    server_.stop();
 }
 
 void params::TeleState::setHapticState(const HapicState& haptic_state)
@@ -62,7 +69,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         current_pos_.z() = current_pos_.z() + delta_position_[1]/1000;
 
         // Проверка на выход за пределы разрешенной области 
-        if (checkPos())
+        if (!checkPos())
         {   
             // Откат к предыдущиму положению
             current_pos_ = temp_;

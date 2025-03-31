@@ -8,17 +8,17 @@ params::TeleState::TeleState(int mode)
 {
     switch (mode)
     {
-    case 0:
+    case 0:     // Обычный
         trans_factor_ = 1000;
         force_factor_ = 20;
         break;
-    case 1:
-        trans_factor_ = 1000;
-        force_factor_ = 20;
+    case 1:     // Грубый
+        trans_factor_ = 100;
+        force_factor_ = 30;
         break;
-    case 2:
-        trans_factor_ = 1000;
-        force_factor_ = 20;
+    case 2:     // Точный
+        trans_factor_ = 10000;
+        force_factor_ = 10;
         break;
     default:
         trans_factor_ = 1000;
@@ -46,6 +46,8 @@ TeleState::~TeleState()
     server_.stop();
 }
 
+// ==================================================================================
+
 void params::TeleState::setHapticState(const HapicState& haptic_state)
 {
     btn_1 = (haptic_state.buttons & HD_DEVICE_BUTTON_1) ? HD_TRUE : HD_FALSE;
@@ -64,9 +66,9 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         temp_ = current_pos_;
 
         // Изменение положения на смещение 
-        current_pos_.x() = current_pos_.x() - delta_position_[2]/1000;
-        current_pos_.y() = current_pos_.y() - delta_position_[0]/1000;
-        current_pos_.z() = current_pos_.z() + delta_position_[1]/1000;
+        current_pos_.x() = current_pos_.x() - delta_position_[2]/trans_factor_;
+        current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_;
+        current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_;
 
         // Проверка на выход за пределы разрешенной области 
         if (!checkPos())
@@ -114,9 +116,9 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         temp_ = current_pos_;
 
         // Изменение положения на смещение 
-        current_pos_.x() = current_pos_.x() - delta_position_[2]/500;
-        current_pos_.y() = current_pos_.y() - delta_position_[0]/500;
-        current_pos_.z() = current_pos_.z() + delta_position_[1]/500;
+        current_pos_.x() = current_pos_.x() - delta_position_[2]/trans_factor_/2;
+        current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_/2;
+        current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_/2;
 
         // Проверка на выход за пределы разрешенной области 
         if (!checkPos())
@@ -177,9 +179,9 @@ hduVector3Dd params::TeleState::getForceVector()
         force_ = kinematic_.getForce(current_kuka_thetta_, current_kuka_torque_);
 
         // Масштабирование вектора силы
-        forceVec_[2] = std::clamp(-force_[3]/30, -3., 3.);
-        forceVec_[0] = std::clamp(-force_[4]/30, -3., 3.);
-        forceVec_[1] = std::clamp( force_[5]/30, -3., 3.);
+        forceVec_[2] = std::clamp(-force_[3]/force_factor_, -3., 3.);
+        forceVec_[0] = std::clamp(-force_[4]/force_factor_, -3., 3.);
+        forceVec_[1] = std::clamp( force_[5]/force_factor_, -3., 3.);
 
         // Задание силы
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;
@@ -188,6 +190,52 @@ hduVector3Dd params::TeleState::getForceVector()
 
     }
 }
+
+void params::TeleState::waitConnection()
+{
+    const char* name = "/my_shm";
+    int shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
+    if (shm_fd == -1) {
+        perror("shm_open");
+        return;
+    }
+
+    ftruncate(shm_fd, sizeof(bool));
+
+    bool* ptr = (bool*)mmap(0, sizeof(bool), PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (ptr == MAP_FAILED) {
+        perror("mmap");
+        return;
+    }
+
+    // const char* message = "Временно";
+    // std::memcpy(ptr, message, strlen(message) + 1);
+    *ptr = false;
+
+    ptr = (bool*)mmap(0, sizeof(bool), PROT_READ, MAP_SHARED, shm_fd, 0);
+    if (ptr == MAP_FAILED) {
+        perror("mmap");
+        return;
+    }
+
+    std::cout << "Ожидание..." << std::endl;
+
+    while(1)
+    {
+        if (*(static_cast<bool*>(ptr)))
+        {
+            break;
+        }
+    }
+
+    std::cout << "Начало" << std::endl;
+
+    munmap(ptr, sizeof(bool));
+    close(shm_fd);
+    shm_unlink(name);
+}
+
+// ==================================================================================
 
 bool params::TeleState::checkPos()
 {

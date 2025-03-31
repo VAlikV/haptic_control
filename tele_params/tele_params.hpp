@@ -19,6 +19,11 @@
 #include "../ik/drake_kinematic.hpp"
 #include "../udp/udp_server.hpp"
 
+#include <iostream>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
 using namespace iiwa_kinematics;
 
 namespace params
@@ -103,6 +108,7 @@ namespace params
         ~TeleState();
         void setHapticState(const HapicState& haptic_state);
         hduVector3Dd getForceVector();
+        void waitConnection();
 
         bool checkPos();
     };   

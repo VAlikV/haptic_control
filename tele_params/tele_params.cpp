@@ -222,6 +222,7 @@ void params::TeleState::waitConnection()
 
     while(1)
     {
+        std::cout << *(static_cast<bool*>(ptr)) << std::endl;
         if (*(static_cast<bool*>(ptr)))
         {
             break;

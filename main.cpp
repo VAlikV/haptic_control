@@ -54,7 +54,7 @@ HDCallbackCode HDCALLBACK Callback(void *data)
 int main(int argc, char* argv[])
 {
     // My code
-    teleoperation.waitConnection();
+    teleoperation.setConnection();
     // End code
 
     HDErrorInfo error;

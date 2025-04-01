@@ -108,7 +108,7 @@ namespace params
         ~TeleState();
         void setHapticState(const HapicState& haptic_state);
         hduVector3Dd getForceVector();
-        void waitConnection();
+        void setConnection();
 
         bool checkPos();
     };   

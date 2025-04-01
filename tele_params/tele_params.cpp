@@ -191,9 +191,10 @@ hduVector3Dd params::TeleState::getForceVector()
     }
 }
 
-void params::TeleState::waitConnection()
+void params::TeleState::setConnection()
 {
     const char* name = "/my_shm";
+
     int shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
         perror("shm_open");
@@ -208,32 +209,12 @@ void params::TeleState::waitConnection()
         return;
     }
 
-    // const char* message = "Временно";
+    // const char* message = "Привет от первого процесса!";
     // std::memcpy(ptr, message, strlen(message) + 1);
-    *ptr = false;
-
-    ptr = (bool*)mmap(0, sizeof(bool), PROT_READ, MAP_SHARED, shm_fd, 0);
-    if (ptr == MAP_FAILED) {
-        perror("mmap");
-        return;
-    }
-
-    std::cout << "Ожидание..." << std::endl;
-
-    while(1)
-    {
-        std::cout << *(static_cast<bool*>(ptr)) << std::endl;
-        if (*(static_cast<bool*>(ptr)))
-        {
-            break;
-        }
-    }
-
-    std::cout << "Начало" << std::endl;
+    *ptr = true;
 
     munmap(ptr, sizeof(bool));
     close(shm_fd);
-    shm_unlink(name);
 }
 
 // ==================================================================================

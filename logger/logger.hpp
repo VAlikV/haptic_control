@@ -1,5 +1,5 @@
-#ifndef UDP_SERVER
-#define UDP_SERVER
+#ifndef LOGGER
+#define LOGGER
 
 #include <fstream>
 #include <iostream>
@@ -31,8 +31,8 @@ namespace logger
 		// -----------------------------------------------------------------
 
         int n_ = 0;
-        Eigen::Array<double, 8,1> data_;
-        ring_buffer<Eigen::Array<double, 8,1>> write_buffer_;
+        Eigen::Array<double, 9,1> data_;
+        ring_buffer<Eigen::Array<double, 9,1>> write_buffer_;
 
 		// -----------------------------------------------------------------------
         
@@ -46,7 +46,7 @@ namespace logger
         void start();
         void stop();
 
-        bool setData(Eigen::Array<double, 8,1> &data);
+        bool setData(Eigen::Array<double, 9,1> &data);
     };
 };
 

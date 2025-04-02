@@ -68,7 +68,7 @@ void FileLogger::closeFile()
 }
 
 
-bool FileLogger::setData(Eigen::Array<double, 8,1> &data)
+bool FileLogger::setData(Eigen::Array<double, 9, 1> &data)
 {
 
 	data_ready_ = write_buffer_.push(data);

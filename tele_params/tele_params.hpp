@@ -18,11 +18,14 @@
 
 #include "../ik/drake_kinematic.hpp"
 #include "../udp/udp_server.hpp"
+#include "../logger/logger.hpp"
 
 #include <iostream>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+
+#include <chrono>
 
 using namespace iiwa_kinematics;
 
@@ -84,12 +87,18 @@ namespace params
         bool btn_1;          // Нажата 1ая кнопка
         bool btn_2;          // Нажата 2ая кнопка
 
-        clock_t last_time_;   
-        clock_t init_time_;
+        std::chrono::steady_clock::time_point last_time_;   
+        std::chrono::steady_clock::time_point init_time_;
 
-        clock_t t_;
+        std::chrono::steady_clock::time_point t_;
+        std::chrono::steady_clock::time_point time_;
 
         server::UDPServer server_ = server::UDPServer("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
+
+        int nn_ = 0;
+        Eigen::Array<double, 9,1> data_time_;        // Для времени
+        Eigen::Array<double, 9,1> data_joints_;        // Углы в джоинтах для сохранения
+        logger::FileLogger log_ = logger::FileLogger("HapticLogs.txt");
 
         // ================================================================================    
         // ================================================================================    

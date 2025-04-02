@@ -54,7 +54,6 @@ HDCallbackCode HDCALLBACK Callback(void *data)
 int main(int argc, char* argv[])
 {
     // My code
-    teleoperation.setConnection();
     // End code
 
     HDErrorInfo error;
@@ -76,6 +75,8 @@ int main(int argc, char* argv[])
         fprintf(stderr, "\nPress any key to quit.\n");
         return -1;
     }
+
+    teleoperation.setConnection();
         
     // Application loop - schedule our call to the main callback.
     HDSchedulerHandle hCallback = hdScheduleAsynchronous(

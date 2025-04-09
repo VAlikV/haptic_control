@@ -92,7 +92,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         // ---------------------------------------------------------------------------------------------------
 
         t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000;
+        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
         log_.setData(data_time_);
 
         // Решение обратной кинематики
@@ -102,7 +102,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         thetta_ = kinematic_.getQ();
 
         t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000;
+        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
         log_.setData(data_time_);
 
         // ---------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         server_.setMsg(thetta_);    //Отправка углов на контроллер
 
         t_ = std::chrono::steady_clock::now();
-        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000, thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
+        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
         log_.setData(data_joints_);
 
         // ---------------------------------------------------------------------------------------------------
@@ -132,9 +132,9 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         temp_ = current_pos_;       // Сохранение предыдущего положения
 
         // Изменение положения на смещение 
-        current_pos_.x() = current_pos_.x() - delta_position_[2]/trans_factor_/2;
-        current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_/2;
-        current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_/2;
+        current_pos_.x() = current_pos_.x() - delta_position_[2]/trans_factor_*2;
+        current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_*2;
+        current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_*2;
 
         if (!checkPos())    // Проверка на выход за пределы разрешенной области 
         {   
@@ -155,7 +155,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         // ---------------------------------------------------------------------------------------------------
 
         t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000;
+        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
         log_.setData(data_time_);
 
         // Решение обратной кинематики
@@ -165,7 +165,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         thetta_ = kinematic_.getQ();
 
         t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000;
+        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
         log_.setData(data_time_);
 
         // ---------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         server_.setMsg(thetta_);    //Отправка углов на контроллер
 
         t_ = std::chrono::steady_clock::now();
-        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000, thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
+        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
         log_.setData(data_joints_);
 
         // ---------------------------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ hduVector3Dd params::TeleState::getForceVector()
         // ---------------------------------------------------------------------------------------------------
 
         t_ = std::chrono::steady_clock::now();
-        data_joints_ << 2, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count())/1000, current_kuka_thetta_[0], current_kuka_thetta_[1], current_kuka_thetta_[2], current_kuka_thetta_[3], current_kuka_thetta_[4], current_kuka_thetta_[5], current_kuka_thetta_[6]; 
+        data_joints_ << 2, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), current_kuka_thetta_[0], current_kuka_thetta_[1], current_kuka_thetta_[2], current_kuka_thetta_[3], current_kuka_thetta_[4], current_kuka_thetta_[5], current_kuka_thetta_[6]; 
         log_.setData(data_joints_);
 
         // ---------------------------------------------------------------------------------------------------

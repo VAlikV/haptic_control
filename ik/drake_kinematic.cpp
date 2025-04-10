@@ -6,12 +6,13 @@ DrakeKinematic::DrakeKinematic(std::string urdf_name):
 plant_(0.0), 
 identity_orientation_(drake::math::RotationMatrix<double>::Identity())
 {
-
     drake::multibody::Parser parser(&plant_);
     parser.AddModels(urdf_name);  // Укажите путь к модели робота
     plant_.Finalize();
 
     context_ = plant_.CreateDefaultContext();
+
+    // cost_ = std::make_shared<PotentialEnergyCost>(&plant_, std::move(context_));
 
     for (int i = 0; i < N_JOINTS; ++i)
     {
@@ -191,6 +192,59 @@ int DrakeKinematic::IK()
 
     return 0;
 }
+
+// int DrakeKinematic::IK_maxU()
+// {
+//     position_previous_ = position_;
+//     rotation_previous_ = rotation_;
+//     thetta_previous_ = thetta_;
+
+//     drake::multibody::InverseKinematics* ik_ = new drake::multibody::InverseKinematics(plant_);
+
+//     target_orientation_ = drake::math::RotationMatrix<double>(rotation_.transpose());
+//     const drake::multibody::Frame<double>& end_effector_frame = plant_.GetFrameByName("iiwa_link_ee");
+
+//     p_BQ_ = Eigen::Vector3d::Zero();    // Точка Q в системе координат B
+//     lower_bound_ = position_;           // Нижняя граница позиции
+//     upper_bound_ = position_;           // Верхняя граница позиции
+
+//     ik_->AddPositionConstraint(
+//         end_effector_frame, p_BQ_, plant_.world_frame(),
+//         lower_bound_, upper_bound_);
+
+//     ik_->AddOrientationConstraint(
+//         plant_.world_frame(), identity_orientation_,  // Фиксированная ориентация для мира
+//         end_effector_frame, target_orientation_,     // Целевая ориентация для эндэффектора
+//         0.0);                                       // Угол отклонения (радианы)  
+
+//     // drake::solvers::MathematicalProgram* prog = &(ik_->prog());
+//     drake::solvers::MathematicalProgram& prog = const_cast<drake::solvers::MathematicalProgram&>(ik_->prog());
+
+//     // PotentialEnergyCost cost = PotentialEnergyCost(&plant_, std::move(context_));
+//     prog.AddCost(PotentialEnergyCost(&plant_, std::move(context_)), ik_->q());
+
+//     Eigen::VectorXd initial_guess = Eigen::VectorXd::Zero(plant_.num_positions());
+//     const drake::solvers::MathematicalProgramResult result = drake::solvers::Solve(prog, /* initial_guess */ thetta_);
+
+//     if (result.is_success()) {
+//         thetta_ = result.GetSolution(ik_->q());
+
+//         delete ik_;
+//         ik_ = nullptr;
+
+//         return 1;
+
+//     } else {
+//         thetta_ = result.GetSolution(ik_->q());
+
+//         delete ik_;
+//         ik_ = nullptr;
+        
+//         return -1;
+//     }
+
+//     return 0;
+// }
 
 // bool KDLKinematic::IK(const Eigen::Matrix<double,3,3> &rotation, const Eigen::Array<double,3,1> &position)
 // {

@@ -24,6 +24,7 @@ add_executable(${PROJECT}
     main.cpp
     tele_params/tele_params.cpp         tele_params/tele_params.hpp
     ik/drake_kinematic.cpp              ik/drake_kinematic.hpp
+    # ik/cost.hpp
     udp/udp_server.cpp                  udp/udp_server.hpp
     logger/logger.cpp                   logger/logger.hpp
     lockfree/lockfree.hpp

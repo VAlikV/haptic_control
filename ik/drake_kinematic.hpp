@@ -13,8 +13,9 @@
 #include "drake/multibody/inverse_kinematics/inverse_kinematics.h"
 #include "drake/solvers/solve.h"
 #include "drake/math/rotation_matrix.h"
+#include "drake/solvers/cost.h"
 
-// #include "../base_kinematic.hpp"
+// #include "cost.hpp"
 
 #include <iostream>
 #include <vector>
@@ -55,6 +56,8 @@ namespace iiwa_kinematics
 
         drake::multibody::MultibodyPlant<double> plant_;
         std::unique_ptr<drake::systems::Context<double>> context_;
+
+        // std::shared_ptr<PotentialEnergyCost> cost_;
 
         // drake::multibody::InverseKinematics* ik_;
 
@@ -109,6 +112,7 @@ namespace iiwa_kinematics
         int FK();
 
         int IK();
+        // int IK_maxU();
         
     };
 }

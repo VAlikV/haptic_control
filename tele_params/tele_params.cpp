@@ -224,10 +224,9 @@ hduVector3Dd params::TeleState::getForceVector()
 
         // Задание силы
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;
-        
-        return forceVec_;
-
     }
+
+    return forceVec_;
 }
 
 void params::TeleState::setConnection()

@@ -50,7 +50,15 @@ void FileLogger::run_write()
 		{
 			if (write_buffer_.pop(data_))
 			{
-				ofs_ << data_[0] << "," << data_[1] << "," << data_[2] << "," << data_[3] << "," << data_[4] << "," << data_[5] << "," << data_[6] << ","  << data_[7] << ";\n";
+				ofs_ << data_[0] << "," 
+					 << data_[1] << ","
+					 << data_[2] << ","
+					 << data_[3] << "," 
+					 << data_[4] << "," 
+					 << data_[5] << "," 
+					 << data_[6] << "," 
+					 << data_[7] << "," 
+					 << data_[8] << ";\n";
 				n_++;
 				if (n_ == 100)
 				{

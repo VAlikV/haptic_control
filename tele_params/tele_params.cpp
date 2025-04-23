@@ -204,7 +204,35 @@ hduVector3Dd params::TeleState::getForceVector()
         // Текущие углы куки
         current_kuka_thetta_ << torque_msg_[0], torque_msg_[1], torque_msg_[2], torque_msg_[3], torque_msg_[4], torque_msg_[5], torque_msg_[6]; 
         // Текущие торки в джоинтах куки
-        current_kuka_torque_ << torque_msg_[7], torque_msg_[8], torque_msg_[9], torque_msg_[10], torque_msg_[11], torque_msg_[12], torque_msg_[13]; 
+        current_kuka_torque_ << torque_msg_[7], torque_msg_[8], torque_msg_[9], torque_msg_[10], torque_msg_[11], torque_msg_[12], torque_msg_[13];
+        
+        // if (first_msg_)
+        // {
+        //     previous_kuka_d_thetta_ << 0,0,0,0,0,0,0;
+        //     current_kuka_d_thetta_ << 0,0,0,0,0,0,0;
+        //     current_kuka_dd_thetta_ << 0,0,0,0,0,0,0;
+        //     previous_kuka_thetta_ = current_kuka_thetta_;
+        //     first_msg_ = false;
+        // }
+        // else
+        // {
+        //     dt_ = (double)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - last_msg_).count())/1000000;
+        //     current_kuka_d_thetta_ = (current_kuka_thetta_ - previous_kuka_thetta_)/dt_;
+        //     current_kuka_dd_thetta_ = (current_kuka_d_thetta_ - previous_kuka_d_thetta_)/dt_;
+        //     previous_kuka_thetta_ = current_kuka_thetta_;
+        //     previous_kuka_d_thetta_ = current_kuka_d_thetta_;
+        // }
+
+        // inertia_kuka_torque_ = kinematic_.getTorque(current_kuka_thetta_, current_kuka_d_thetta_, current_kuka_dd_thetta_);
+
+        // std::cout << "q: " << current_kuka_thetta_.transpose() << std::endl;
+        // std::cout << "dq: " << current_kuka_d_thetta_.transpose() << std::endl;
+        // std::cout << "ddq: " << current_kuka_dd_thetta_.transpose() << std::endl;
+        
+        // std::cout << "Current: " << current_kuka_torque_.transpose() << std::endl;
+        // std::cout << "Inertia: " << inertia_kuka_torque_.transpose() << std::endl;
+
+        // last_msg_ = std::chrono::steady_clock::now();
 
         // ---------------------------------------------------------------------------------------------------
 
@@ -231,7 +259,7 @@ hduVector3Dd params::TeleState::getForceVector()
 
 void params::TeleState::setConnection()
 {
-    const char* name = "/my_shm";
+    const char* name = "/my_shm1";
 
     int shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {

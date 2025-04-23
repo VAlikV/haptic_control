@@ -71,8 +71,17 @@ namespace params
 
         Eigen::Array<double, 14,1> torque_msg_;     // Сообщение от контроллера
 
-        Eigen::Array<double, 7,1> current_kuka_thetta_;     // Реальное положение куки 
+        double dt_ = 1;
+        bool first_msg_ = true;
+        std::chrono::steady_clock::time_point last_msg_;   
+        Eigen::Array<double, 7,1> previous_kuka_thetta_;     // Предыдущее положение куки 
+        Eigen::Array<double, 7,1> current_kuka_thetta_;     // Реальная скорость куки 
+        Eigen::Array<double, 7,1> previous_kuka_d_thetta_;     // Предыдущая скорость куки 
+        Eigen::Array<double, 7,1> current_kuka_d_thetta_;     // Реальная скорость куки 
+        Eigen::Array<double, 7,1> current_kuka_dd_thetta_;     // Реальное ускорение куки 
+
         Eigen::Array<double, 7,1> current_kuka_torque_;     // Торки в джоинтах куки
+        Eigen::Array<double, 7,1> inertia_kuka_torque_;     
 
         Eigen::Array<double, 6,1> force_;   // Вектор силы и моменты
 

@@ -45,7 +45,6 @@ void FileLogger::run_write()
 {
     while (logger_started_)
 	{
-
 		if (data_ready_)
 		{
 			if (write_buffer_.pop(data_))

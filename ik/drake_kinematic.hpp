@@ -107,10 +107,13 @@ namespace iiwa_kinematics
 
         Eigen::Matrix<double,N_JOINTS,3> getJointPose();
         
+        Eigen::Array<double,N_JOINTS,1> getTorque(const Eigen::Array<double,N_JOINTS,1> &thetta, 
+                                                const Eigen::Array<double,N_JOINTS,1> &d_thetta,
+                                                const Eigen::Array<double,N_JOINTS,1> &dd_thetta);
+
         Eigen::Matrix<double,6,1> getForce(const Eigen::Array<double,N_JOINTS,1> &thetta, const Eigen::Array<double,N_JOINTS,1> &torque);
 
         int FK();
-
         int IK();
         // int IK_maxU();
         

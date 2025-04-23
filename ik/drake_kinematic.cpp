@@ -123,6 +123,24 @@ Eigen::Matrix<double,6,1> DrakeKinematic::getForce(const Eigen::Array<double,N_J
     return force;
 }
 
+// -----------------------
+
+Eigen::Array<double,N_JOINTS,1> DrakeKinematic::getTorque(const Eigen::Array<double,N_JOINTS,1> &thetta, 
+    const Eigen::Array<double,N_JOINTS,1> &d_thetta,
+    const Eigen::Array<double,N_JOINTS,1> &dd_thetta)
+{
+    plant_.SetPositions(context_.get(), thetta);
+    plant_.SetVelocities(context_.get(), d_thetta);
+
+    // Внешние силы (если их нет — создаём пустой объект)
+    drake::multibody::MultibodyForces<double> external_forces(plant_);
+
+    // Вычисляем обобщённые усилия (в т.ч. моменты в шарнирах)
+    Eigen::VectorXd tau = plant_.CalcInverseDynamics(*context_, dd_thetta, external_forces);
+
+    return tau;
+}
+
 // ----------------------------------------------------------------------- Кинематика
 
 int DrakeKinematic::FK()
@@ -137,12 +155,6 @@ int DrakeKinematic::FK()
 
     return 1;
 }
-
-// bool KDLKinematic::FK(const Eigen::Array<double,N_JOINTS,1> &thetta)
-// {
-//     this->setQ(thetta);
-//     return this->FK();
-// }
 
 int DrakeKinematic::IK()
 {

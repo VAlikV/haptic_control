@@ -102,7 +102,7 @@ namespace params
         std::chrono::steady_clock::time_point t_;
         std::chrono::steady_clock::time_point time_;
 
-        server::UDPServer server_ = server::UDPServer("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
+        server::UDPServer<14,7> server_ = server::UDPServer<14,7>("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
 
         int nn_ = 0;
         Eigen::Array<double, 9,1> data_time_;        // Для времени

@@ -98,7 +98,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         // Решение обратной кинематики
         kinematic_.setPositionVector(current_pos_);
         kinematic_.setRotationMatrix(current_rot_);
-        state_ = kinematic_.IK();
+        state_ = kinematic_.IK_maxU();
         thetta_ = kinematic_.getQ();
 
         t_ = std::chrono::steady_clock::now();
@@ -161,7 +161,7 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         // Решение обратной кинематики
         kinematic_.setPositionVector(current_pos_);
         kinematic_.setRotationMatrix(current_rot_);
-        state_ = kinematic_.IK();
+        state_ = kinematic_.IK_maxU();
         thetta_ = kinematic_.getQ();
 
         t_ = std::chrono::steady_clock::now();

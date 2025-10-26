@@ -15,7 +15,7 @@
 #include "drake/math/rotation_matrix.h"
 #include "drake/solvers/cost.h"
 
-// #include "cost.hpp"
+#include "cost.hpp"
 
 #include <iostream>
 #include <vector>
@@ -56,6 +56,8 @@ namespace iiwa_kinematics
 
         drake::multibody::MultibodyPlant<double> plant_;
         std::unique_ptr<drake::systems::Context<double>> context_;
+
+        std::shared_ptr<PotentialEnergyCost> e_cost_;
 
         // std::shared_ptr<PotentialEnergyCost> cost_;
 
@@ -115,7 +117,7 @@ namespace iiwa_kinematics
 
         int FK();
         int IK();
-        // int IK_maxU();
+        int IK_maxU();
         
     };
 }

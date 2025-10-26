@@ -15,7 +15,7 @@
 #include <functional>
 #include <atomic>
 
-#include <nlohmann/json.hpp>
+#include "json.hpp"
 #include <Eigen/Dense>
 
 #include "../lockfree/lockfree.hpp"

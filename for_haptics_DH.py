@@ -23,14 +23,16 @@ def FK(d, thetta, alpha, a):
         return temp_t, joint, endefector_pos
 
 
-q = np.array([-4.429273, -13.468780, 81.478275, 7.668355, -7.244162, -9.713130])
-q = q * np.pi/180
-thetta = np.array([0, 0, np.pi/2, 0, 0 + np.pi/2, 0],dtype=float)
-alpha = np.array([-np.pi/2, 0, np.pi/2, -np.pi/2, np.pi/2, 0],dtype=float)
+q = np.array([0, 15.4062, -21.246, 0.0793419, 45.3143, 2.78941])
+m = np.array([-1, 1, 1, -1, -1, 1])
+q = m * q * np.pi/180
+
+thetta = np.array([np.pi, 0, 0, 0, -np.pi/2, 0],dtype=float)
+alpha = np.array([np.pi/2, 0, np.pi/2, np.pi/2, np.pi/2, 0],dtype=float)
 d = np.array([2, 0, 0, 2, 0, 1],dtype=float)
 a = np.array([0, 2, 0, 0, 0, 0],dtype=float)
 
-rt, data, _ = FK(d,q,alpha,a)
+rt, data, _ = FK(d,q+thetta,alpha,a)
 # print(data)
 
 # data = np.insert(data,0,[0,0,0],axis=1)

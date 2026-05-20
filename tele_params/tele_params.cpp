@@ -239,6 +239,8 @@ hduVector3Dd params::TeleState::getForceVector()
         t_ = std::chrono::steady_clock::now();
         data_joints_ << 2, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), current_kuka_thetta_[0], current_kuka_thetta_[1], current_kuka_thetta_[2], current_kuka_thetta_[3], current_kuka_thetta_[4], current_kuka_thetta_[5], current_kuka_thetta_[6]; 
         log_.setData(data_joints_);
+        data_joints_ << 3, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), current_kuka_torque_[0], current_kuka_torque_[1], current_kuka_torque_[2], current_kuka_torque_[3], current_kuka_torque_[4], current_kuka_torque_[5], current_kuka_torque_[6]; 
+        log_.setData(data_joints_);
 
         // ---------------------------------------------------------------------------------------------------
 
@@ -259,7 +261,7 @@ hduVector3Dd params::TeleState::getForceVector()
 
 void params::TeleState::setConnection()
 {
-    const char* name = "/my_shm1";
+    const char* name = "/my_shm2";
 
     int shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {

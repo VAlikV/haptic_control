@@ -3,8 +3,6 @@
 using namespace params;
 
 params::TeleState::TeleState(int mode)
-// kinematic_(DrakeKinematic("../robots/iiwa.urdf")),
-// server_(server::UDPServer("127.0.0.1", 8080, "127.0.0.1", 8081))
 {
     switch (mode)
     {
@@ -34,8 +32,8 @@ params::TeleState::TeleState(int mode)
     initial_pos_ << 0.5, 0.0, 0.6;
     current_pos_ << 0.5, 0.0, 0.6;
 
-    data_time_ << 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    data_joints_ << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    position_msg_ << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    force_msg_ << 0, 0, 0, 0, 0, 0;
 
     server_.start();
     log_.start();
@@ -77,11 +75,11 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_;
         current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_;
  
-        if (!checkPos())    // Проверка на выход за пределы разрешенной области
-        {   
-            current_pos_ = temp_;   // Откат к предыдущиму положению
-            std::cout << std::endl << "False" << std::endl;
-        }
+        // if (!checkPos())    // Проверка на выход за пределы разрешенной области
+        // {   
+        //     current_pos_ = temp_;   // Откат к предыдущиму положению
+        //     std::cout << std::endl << "False" << std::endl;
+        // }
 
         std::cout << "Текущая позиция:\n" << current_pos_.x() << "\t" << current_pos_.y() << "\t" << current_pos_.z() << std::endl;
         
@@ -91,35 +89,15 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
 
         // ---------------------------------------------------------------------------------------------------
 
-        t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
-        log_.setData(data_time_);
+        position_msg_ << -delta_position_[2]/trans_factor_, -delta_position_[0]/trans_factor_, delta_position_[1]/trans_factor_, 
+                                current_rot_(0,0), current_rot_(0,1), current_rot_(0,2),
+                                current_rot_(1,0), current_rot_(1,1), current_rot_(1,2),
+                                current_rot_(2,0), current_rot_(2,1), current_rot_(2,2);
 
-        // Решение обратной кинематики
-        kinematic_.setPositionVector(current_pos_);
-        kinematic_.setRotationMatrix(current_rot_);
-        state_ = kinematic_.IK();
-        thetta_ = kinematic_.getQ();
-
-        t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
-        log_.setData(data_time_);
+        server_.setMsg(position_msg_);    //Отправка углов на контроллер
 
         // ---------------------------------------------------------------------------------------------------
-
-        server_.setMsg(thetta_);    //Отправка углов на контроллер
-
-        t_ = std::chrono::steady_clock::now();
-        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
-        log_.setData(data_joints_);
-
-        // ---------------------------------------------------------------------------------------------------
-
-        std::cout << "Статус: " << state_ << std::endl;
-        std::cout << "Рассчитанные углы: " <<  thetta_.transpose()*180/M_PI << std::endl;
         
-        // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
-
         last_time_ = std::chrono::steady_clock::now();
         std::cout << "Время: " << std::chrono::duration_cast<std::chrono::microseconds>(last_time_ - time_).count() << std::endl << std::endl;
 
@@ -136,11 +114,11 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
         current_pos_.y() = current_pos_.y() - delta_position_[0]/trans_factor_*2;
         current_pos_.z() = current_pos_.z() + delta_position_[1]/trans_factor_*2;
 
-        if (!checkPos())    // Проверка на выход за пределы разрешенной области 
-        {   
-            current_pos_ = temp_;   // Откат к предыдущиму положению
-            std::cout << std::endl << "False" << std::endl;
-        }
+        // if (!checkPos())    // Проверка на выход за пределы разрешенной области 
+        // {   
+        //     current_pos_ = temp_;   // Откат к предыдущиму положению
+        //     std::cout << std::endl << "False" << std::endl;
+        // }
 
         std::cout << "Текущая позиция:\n" << current_pos_.x() << "\t" << current_pos_.y() << "\t" << current_pos_.z() << std::endl;
         
@@ -150,40 +128,20 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
 
         std::cout << std::endl << "Текущая матрица:\n" << current_rot_ << std::endl;
 
-        t_ = std::chrono::steady_clock::now();;
-
         // ---------------------------------------------------------------------------------------------------
 
-        t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
-        log_.setData(data_time_);
+        position_msg_ << -delta_position_[2]/trans_factor_*2, -delta_position_[0]/trans_factor_*2, delta_position_[1]/trans_factor_*2, 
+                                current_rot_(0,0), current_rot_(0,1), current_rot_(0,2),
+                                current_rot_(1,0), current_rot_(1,1), current_rot_(1,2),
+                                current_rot_(2,0), current_rot_(2,1), current_rot_(2,2);
 
-        // Решение обратной кинематики
-        kinematic_.setPositionVector(current_pos_);
-        kinematic_.setRotationMatrix(current_rot_);
-        state_ = kinematic_.IK();
-        thetta_ = kinematic_.getQ();
-
-        t_ = std::chrono::steady_clock::now();
-        data_time_[1] = (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count());
-        log_.setData(data_time_);
+        server_.setMsg(position_msg_);    //Отправка углов на контроллер
 
         // ---------------------------------------------------------------------------------------------------
-
-        server_.setMsg(thetta_);    //Отправка углов на контроллер
-
-        t_ = std::chrono::steady_clock::now();
-        data_joints_ << 1, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), thetta_[0], thetta_[1], thetta_[2], thetta_[3], thetta_[4], thetta_[5], thetta_[6]; 
-        log_.setData(data_joints_);
-
-        // ---------------------------------------------------------------------------------------------------
-
-        std::cout << "Статус: " << state_ << std::endl;
-        std::cout << "Рассчитанные углы: " <<  thetta_.transpose()*180/M_PI << std::endl;
         
         // std::cout << "Рассчитанные углы: " <<  server::eigenArrayToJson(params.thetta_).dump().c_str() << std::endl;
 
-        last_time_ = std::chrono::steady_clock::now();;
+        last_time_ = std::chrono::steady_clock::now();
         std::cout << "Время: " << std::chrono::duration_cast<std::chrono::microseconds>(last_time_ - time_).count() << std::endl << std::endl;
 
     }   // =============================================================================================================
@@ -197,62 +155,15 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
 
 hduVector3Dd params::TeleState::getForceVector()
 {
-    if (server_.getMsg(torque_msg_))
+    if (server_.getMsg(force_msg_))
     {
-        // std::cout << params.torque_msg_.transpose() << std::endl;
-
-        // Текущие углы куки
-        current_kuka_thetta_ << torque_msg_[0], torque_msg_[1], torque_msg_[2], torque_msg_[3], torque_msg_[4], torque_msg_[5], torque_msg_[6]; 
-        // Текущие торки в джоинтах куки
-        current_kuka_torque_ << torque_msg_[7], torque_msg_[8], torque_msg_[9], torque_msg_[10], torque_msg_[11], torque_msg_[12], torque_msg_[13];
         
-        // if (first_msg_)
-        // {
-        //     previous_kuka_d_thetta_ << 0,0,0,0,0,0,0;
-        //     current_kuka_d_thetta_ << 0,0,0,0,0,0,0;
-        //     current_kuka_dd_thetta_ << 0,0,0,0,0,0,0;
-        //     previous_kuka_thetta_ = current_kuka_thetta_;
-        //     first_msg_ = false;
-        // }
-        // else
-        // {
-        //     dt_ = (double)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - last_msg_).count())/1000000;
-        //     current_kuka_d_thetta_ = (current_kuka_thetta_ - previous_kuka_thetta_)/dt_;
-        //     current_kuka_dd_thetta_ = (current_kuka_d_thetta_ - previous_kuka_d_thetta_)/dt_;
-        //     previous_kuka_thetta_ = current_kuka_thetta_;
-        //     previous_kuka_d_thetta_ = current_kuka_d_thetta_;
-        // }
-
-        // inertia_kuka_torque_ = kinematic_.getTorque(current_kuka_thetta_, current_kuka_d_thetta_, current_kuka_dd_thetta_);
-
-        // std::cout << "q: " << current_kuka_thetta_.transpose() << std::endl;
-        // std::cout << "dq: " << current_kuka_d_thetta_.transpose() << std::endl;
-        // std::cout << "ddq: " << current_kuka_dd_thetta_.transpose() << std::endl;
-        
-        // std::cout << "Current: " << current_kuka_torque_.transpose() << std::endl;
-        // std::cout << "Inertia: " << inertia_kuka_torque_.transpose() << std::endl;
-
-        // last_msg_ = std::chrono::steady_clock::now();
-
-        // ---------------------------------------------------------------------------------------------------
-
-        t_ = std::chrono::steady_clock::now();
-        data_joints_ << 2, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), current_kuka_thetta_[0], current_kuka_thetta_[1], current_kuka_thetta_[2], current_kuka_thetta_[3], current_kuka_thetta_[4], current_kuka_thetta_[5], current_kuka_thetta_[6]; 
-        log_.setData(data_joints_);
-        data_joints_ << 3, (double)(std::chrono::duration_cast<std::chrono::microseconds>(t_ - init_time_).count()), current_kuka_torque_[0], current_kuka_torque_[1], current_kuka_torque_[2], current_kuka_torque_[3], current_kuka_torque_[4], current_kuka_torque_[5], current_kuka_torque_[6]; 
-        log_.setData(data_joints_);
-
-        // ---------------------------------------------------------------------------------------------------
-
-        // Расчет силы на эндефекторе
-        force_ = kinematic_.getForce(current_kuka_thetta_, current_kuka_torque_);
-
         // Масштабирование вектора силы
-        forceVec_[2] = std::clamp(-force_[3]/force_factor_, -3., 3.);
-        forceVec_[0] = std::clamp(-force_[4]/force_factor_, -3., 3.);
-        forceVec_[1] = std::clamp( force_[5]/force_factor_, -3., 3.);
+        forceVec_[2] = std::clamp(-force_msg_[3]/force_factor_, -3., 3.);
+        forceVec_[0] = std::clamp(-force_msg_[4]/force_factor_, -3., 3.);
+        forceVec_[1] = std::clamp( force_msg_[5]/force_factor_, -3., 3.);
 
-        // Задание силы
+        // Сила
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;
     }
 
@@ -292,14 +203,7 @@ void params::TeleState::setConnection()
 
 bool params::TeleState::checkPos()
 {
-    if ((current_pos_ - initial_pos_).norm() <= radius_)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (current_pos_ - initial_pos_).norm() <= radius_;
 }
 
 Eigen::Matrix<double,3,3> params::TeleState::R(double theta, double alpha)         // Rotation matrix

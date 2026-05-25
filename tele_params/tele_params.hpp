@@ -62,8 +62,8 @@ namespace params
         // ================================================================================    
         // ================================================================================    
 
-        Eigen::Array<double, 12,1> position_msg_;   // Рассчитанные углы в джоинтах
-        Eigen::Array<double,6,1> force_msg_;        // Сообщение от контроллера
+        Eigen::Array<double,12,1> position_msg_;   // Рассчитанные углы в джоинтах
+        Eigen::Array<double,25,1> obs_msg_;        // Сообщение от контроллера
 
         hduVector3Dd forceVec_;
 
@@ -80,7 +80,7 @@ namespace params
         std::chrono::steady_clock::time_point t_;
         std::chrono::steady_clock::time_point time_;
 
-        server::UDPServer<6,12> server_ = server::UDPServer<6,12>("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
+        server::UDPServer<25,12> server_ = server::UDPServer<25,12>("127.0.0.1", 8080, "127.0.0.1", 8081);  // UDP
 
         logger::FileLogger log_ = logger::FileLogger("HapticLogs.txt");
 

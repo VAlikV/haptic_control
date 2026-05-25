@@ -33,8 +33,7 @@ params::TeleState::TeleState(int mode)
     current_pos_ << 0.5, 0.0, 0.6;
 
     position_msg_ << 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    force_msg_ << 0, 0, 0, 0, 0, 0;
-
+    
     server_.start();
     log_.start();
 
@@ -155,13 +154,13 @@ void params::TeleState::setHapticState(const HapicState& haptic_state)
 
 hduVector3Dd params::TeleState::getForceVector()
 {
-    if (server_.getMsg(force_msg_))
+    if (server_.getMsg(obs_msg_))
     {
         
         // Масштабирование вектора силы
-        forceVec_[2] = std::clamp(-force_msg_[3]/force_factor_, -3., 3.);
-        forceVec_[0] = std::clamp(-force_msg_[4]/force_factor_, -3., 3.);
-        forceVec_[1] = std::clamp( force_msg_[5]/force_factor_, -3., 3.);
+        forceVec_[2] = std::clamp(-obs_msg_[22]/force_factor_, -3., 3.);
+        forceVec_[0] = std::clamp(-obs_msg_[23]/force_factor_, -3., 3.);
+        forceVec_[1] = std::clamp( obs_msg_[24]/force_factor_, -3., 3.);
 
         // Сила
         // std::cout << "Force: " << forceVec[0] << "\t" << forceVec[1] << "\t" << forceVec[2] << std::endl;

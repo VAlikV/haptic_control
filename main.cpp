@@ -14,6 +14,8 @@ HapicState haptic_state;
 *******************************************************************************/
 HDCallbackCode HDCALLBACK Callback(void *data)
 {
+    std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
     hdBeginFrame(hdGetCurrentDevice());
    
     // My code
@@ -94,6 +96,7 @@ int main(int argc, char* argv[])
             fprintf(stderr, "\nPress any key to quit.\n");
             break;
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 
     // For cleanup, unschedule our callbacks and stop the servo loop.

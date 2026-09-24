@@ -11,7 +11,6 @@ set(GCC_COVERAGE_COMPILE_FLAGS "-W -fexceptions -O2 -DNDEBUG -Dlinux")
 
 # find_library(Lapack_LIB liblapack NAMES liblapack lapack HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(drake CONFIG REQUIRED)
 
 find_library(HDU_LIB HDU NAMES libHDU.a -libHDU HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
 find_library(HD_LIB HD NAMES libHD.so.3.4.0 -libHD HINTS ${CMAKE_CURRENT_SOURCE_DIR}/lib REQUIRED)
@@ -21,8 +20,6 @@ find_library(HL_LIB HD NAMES libHL.so.3.4.0 -libHL HINTS ${CMAKE_CURRENT_SOURCE_
 add_executable(${PROJECT}
     main.cpp
     tele_params/tele_params.cpp         tele_params/tele_params.hpp
-    ik/drake_kinematic.cpp              ik/drake_kinematic.hpp
-    ik/cost.hpp
     udp/udp_server.cpp                  udp/udp_server.hpp
     logger/logger.cpp                   logger/logger.hpp
     lockfree/lockfree.hpp
@@ -38,7 +35,6 @@ target_link_libraries(${PROJECT}
     m
     ncurses
     Eigen3::Eigen
-    drake::drake
 )
 
 target_include_directories(${PROJECT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

@@ -73,6 +73,8 @@ namespace params
 
         bool btn_1;          // Нажата 1ая кнопка
         bool btn_2;          // Нажата 2ая кнопка
+        bool y_step_finished_ = false;
+        double y_step_progress_ = 0.0;
 
         std::chrono::steady_clock::time_point last_time_;   
         std::chrono::steady_clock::time_point init_time_;
@@ -89,7 +91,7 @@ namespace params
         // ================================================================================  
 
         const double dh_m[6] = {-1, 1, 1, -1, -1, 1};                // Множители хаптика
-        const double dh_theta[6] = {M_PI, 0, 0, 0, -M_PI/2, 0};                // Параметры ДХ хаптика
+        const double dh_theta[6] = {M_PI, 0, 0, 0, -M_PI/2, M_PI};                // Параметры ДХ хаптика
         const double dh_alpha[6] = {M_PI/2, 0, M_PI/2, M_PI/2, M_PI/2, 0};     // Параметры ДХ хаптика
 
         Eigen::Matrix<double,3,3> R(double theta, double alpha);
